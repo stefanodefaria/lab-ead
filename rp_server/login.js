@@ -24,6 +24,10 @@ function login(req, res){
         try
         {
             var obj = JSON.parse(req_data);
+            if (obj.email === undefined || obj.password === undefined)
+            {
+               throw {message: "Parse Error: no 'email' or 'password' property"}
+            }
             parseError = false;
 
             var ret = session.authenticateClient(obj.email, obj.password, null);
@@ -31,10 +35,12 @@ function login(req, res){
             if(ret.code === session.returnCode.SUCCESS)
             {
                 res.end(JSON.stringify({message: "Login successful", token: ret.clientToken, connectionTimeOut: session.connectionTimeOut}));
+                console.log('Client %s connected successfully', address);
             }
             if(ret.code === session.returnCode.BAD_CREDENTIALS)
             {
                 res.end(JSON.stringify({message: "Error: Bad credentials"}));
+                console.log('Client %s failed to connect (Bad credentials)', address);
             }
         }
         catch (err)
@@ -42,12 +48,14 @@ function login(req, res){
             if(parseError) //Catches JSON.parse() error
             {
                 res.end(JSON.stringify({message: "Bad data"}));
+                console.log('Client %s failed to connect (Bad data)', address);
             }
             else
             {
+                console.log(err.message);
                 res.end(JSON.stringify({message: "Internal server error"}));
+                console.log('Client %s failed to connect (Internal server error)', address);
             }
-            console.log(err.message);
         }
     });
 }

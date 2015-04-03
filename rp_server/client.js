@@ -22,7 +22,7 @@ var test_options = {
 //-------------------------
 var login_data = JSON.stringify({
    email: 'teste@teste.com.br',
-   password: '12345'
+   passwor: '12345'
 });
 
 var login_options = {
