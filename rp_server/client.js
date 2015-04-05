@@ -9,20 +9,11 @@
 var http = require('http');
 
 //-------------------------
-//   TEST SETUP
-//-------------------------
-var test_options = {
-    host: 'localhost',
-    port: 8080,
-    path: '/test'
-};
-
-//-------------------------
 //   LOGIN SETUP
 //-------------------------
 var login_data = JSON.stringify({
-   email: 'teste@teste.com.br',
-   passwor: '12345'
+   email: 'user1@test.com',
+   password: '12345'
 });
 
 var login_options = {
@@ -35,20 +26,17 @@ var login_options = {
 //-------------------------
 //   HTTP REQUEST
 //-------------------------
-req = http.request(login_options, function(res) {
+var req = http.request(login_options, function(res) {
 
-   // message = '';
+    var message = '';
 
     res.on("data", function(chunk) {
-        //message+=chunk.toString();
-        console.log(chunk.toString())
+        message+=chunk.toString();
     });
 
     res.on('end', function(){
-       // console.log(message)
+       console.log('message: '+message)
     });
-
-
 });
 
 req.on('error', function(e) {

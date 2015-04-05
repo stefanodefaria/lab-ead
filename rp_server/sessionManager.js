@@ -1,18 +1,31 @@
 /**
  * Created by Stéfano on 03/04/2015.
  */
-var uuid = require('node-uuid');
+var uuid = require('uuid');
 var utils = require('./utils');
+var db;
+
+//Gets single ton DB instance
+require('./database').getDBInstance(function(err, instance){
+
+    if(err)
+    {
+        console.log(e.message)
+    }
+    db = instance
+});
 
 /**
  * RETURN CODES:
- * 1- Sucess
- * 2- Bad Credentials
- * 3- Session timed out
- * 4- Bad token
+ * 1- Sucess: Validation successful
+ * 2- Bad Credentials: Wrong email or password
+ * 3- Session timed out: last request was more than 'connectionTimeOut' ago
+ * 4- Bad token: User provided different token (probably another client trying to operate with someone else's email)
  * 5- Bad operation
  */
-var returnCode = {SUCCESS: 1, BAD_CREDENTIALS: 2, SESSION_TIMED_OUT: 3, BAD_TOKEN: 4, BAD_OPERATION: 5};
+var returnMessage = {SUCCESS: 'SUCCESS', BAD_CREDENTIALS: 'BAD_CREDENTIALS', SESSION_TIMED_OUT: 'SESSION_TIMED_OUT',
+    BAD_TOKEN: 'BAD_TOKEN', BAD_OPERATION: 'BAD_OPERATION', CLIENT_NOT_LOGGED_IN: 'CLIENT_NOT_LOGGED_IN',
+    BAD_DATA: 'BAD_DATA', SERVER_ERROR: 'SERVER_ERROR'};
 
 //this array keeps track of which users are online.
 //it will store objects like:
@@ -25,72 +38,147 @@ var connectionTimeOut = 30*60;
 
 //--------------------------------------------------------------------------------------------
 // This function will validate client's properties.
-// 1- If client is not currently online, it will validate 'email' and 'password'
-// 2- If client is already online, it will validate 'email' and 'token' with the OnlineTable array
-//
+// 1- If client is not logged in, it will validate 'email' and 'password'
+// 2- If client has logged in, it will validate 'email' and 'token' with the OnlineTable array
+// req_data -->object {login: TRUE/false, message: data received from client}
 // User is online --> is in OnlineTable array
-function authenticateClient(email, password, token)
+function authenticateClient(req_data, cb)
 {
-    //if client wants to log in
-    if(password && !token)
+    //object that will be returned to callback
+    var ret_obj;
+    try
     {
-        if(validateCredentials(email, password))
+        //var address = utils.clientAddress(req);
+        var clientInfo;
+        try
         {
-            //get current time
-            currentTime = utils.currentTimeInSeconds();
+            clientInfo = JSON.parse(req_data.message)
+        }
+        catch (err)
+        {
+            throw {type: 'JSON_PARSE', message: err.message};
+        }
 
-            //creates uuid token
-            //this is used to verify client session
-            clientToken = uuid.v4();
+        //if client wants to log in
+        if(req_data.login)
+        {
+            if (clientInfo.email === undefined || clientInfo.password === undefined)
+            {
+                throw {type:'JSON_PARSE', message: 'Error on parsing credentials'}
+            }
+            //assync DB validation
+            validateCredentials(clientInfo.email, clientInfo.password, function(err, validated){
+                if(err)
+                {
+                    cb(err);
+                    return;
+                }
 
-            //inserts client into onlineTable
-            onlineTable[email] = {clientToken: clientToken, lastConnectionTime: currentTime};
+                if(validated)
+                {
+                    //get current time
+                    currentTime = utils.currentTimeInSeconds();
 
-            return {code: returnCode.SUCCESS , clientToken: clientToken};
+                    //creates uuid token
+                    //this is used to verify client sessionMngr
+                    clientToken = uuid.v4();
+
+                    //inserts client into onlineTable
+                    //TODO - Discuss about this:
+                    //if same client connects again, overrides previous entry (only 1 device connected at a time)
+                    onlineTable[clientInfo.email] = {clientToken: clientToken, lastConnectionTime: currentTime};
+
+                    ret_obj = {message: returnMessage.SUCCESS , clientToken: clientToken};
+                }
+                else
+                {
+                    ret_obj = {message: returnMessage.BAD_CREDENTIALS};
+                }
+                cb(null, ret_obj);
+                return; //exits function
+            })
+
+        }else if(onlineTable.indexOf(clientInfo.email) !== undefined) //checks if 'email' is in 'onlineTable' array (user has logged in)
+        {
+            clientEntry = onlineTable[clientInfo.email];
+
+            //checks for valid token and timeout
+            tokenIsValid = clientEntry.clientToken == clientInfo.token;
+            timedOut = clientEntry.lastConnectionTime + connectionTimeOut < utils.currentTimeInSeconds();
+
+            if(tokenIsValid && !timedOut )
+            {
+                onlineTable[clientInfo.email].lastConnectionTime = utils.currentTimeInSeconds();
+
+                ret_obj = {message: returnMessage.SUCCESS};
+            }
+            else if (!tokenIsValid)
+            {
+                ret_obj = {message: returnMessage.BAD_TOKEN};
+            }
+            else if(timedOut)
+            {
+                ret_obj = {message: returnMessage.SESSION_TIMED_OUT};
+            }
+            cb(null,ret_obj);
         }
         else
         {
-            return {code: returnCode.BAD_CREDENTIALS};
+            ret_obj = {message: returnMessage.CLIENT_NOT_LOGGED_IN};
+            cb(null,ret_obj);
         }
     }
-    //if client is already logged in
-    else if(token && !password && (onlineTable.indexOf(email) !== undefined)) //checks if 'email' is in 'onlineTable' array
+    catch (err)
     {
-        clientEntry = onlineTable[email];
+        //TODO
+        //add returnMessage.BAD_DATA
+        //add returnMessage.SERVER_ERROR
 
-        //checks for valid token and timeout
-        tokenIsValid = clientEntry.clientToken == token;
-        timedOut = clientEntry.lastConnectionTime + connectionTimeOut < utils.currentTimeInSeconds();
+        if(err.type && err.type ==='JSON_PARSE')
+        {
+            ret_obj = {message: returnMessage.BAD_DATA}
+        }
+        else
+        {
+            ret_obj = {message: returnMessage.SERVER_ERROR}
+        }
 
-        if(tokenIsValid && !timedOut )
-        {
-            onlineTable[email].lastConnectionTime = utils.currentTimeInSeconds();
-            return {code: returnCode.SUCCESS};
-        }
-        else if (!tokenIsValid)
-        {
-            return {code: returnCode.BAD_TOKEN}; //bad token
-        }
-        else if(timedOut)
-        {
-            return {code: returnCode.SESSION_TIMED_OUT}
-        }
-    }
-    else
-    {
-        return {code: returnCode.BAD_OPERATION};
+        console.log('Client XX failed to connect: ', err.message);
+        cb(null, ret_obj);
     }
 }
 
-function validateCredentials(email, password)
+/**
+ * Validates email, password, and returns to async callback
+ * @param email
+ * @param password
+ * @param cb
+ */
+function validateCredentials(email, password, cb)
 {
-    //TODO
-    //check if email and password are registered in database
-    return true;
+    db.find({_id: email, password: password}, function (err, docs) {
+        if(err)
+        {
+            cb(err);
+            return;
+        }
+
+        if (docs)
+        {
+            cb(null, true)
+        }
+        else
+        {
+            cb(null, false)
+        }
+    });
 }
+
+
+
 
 module.exports.authenticateClient = authenticateClient;
-module.exports.returnCode = returnCode;
+module.exports.returnCode = returnMessage;
 module.exports.connectionTimeOut = connectionTimeOut;
 
 /**

@@ -1,0 +1,4 @@
+{"_id":"admin@test.com","password":"12345","admin":true}
+{"_id":"user1@test.com","password":"12345","admin":false}
+{"_id":"user2@test.com","password":"12345","admin":false}
+{"_id":"user3@test.com","password":"12345","admin":false}
