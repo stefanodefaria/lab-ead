@@ -1,44 +1,60 @@
 /** Created by Stéfano on 03/04/2015. **/
 var http = require('http');
-//var login = require('./login');
+var database = require('./database');
 var session = require('./sessionManager');
+var defs = require('./definitions');
 var utils = require('./utils');
+
+//Loads singleton DB instance
+database.loadDB();
+
 var port = 8080;
 
 //TODO
 //create httpS server instead
 http.createServer(function (req, res) {
 
-    var req_data = {login: null, message:''};
+    var req_data;
 
     //gets POST message from client
     req.on('data', function(data){
-        req_data.message+=data.toString();
+        if(req_data){
+            req_data+=data.toString();
+        }
+        else{
+            req_data=data.toString();
+        }
     });
 
     req.on('end', function() {
         //adds 'address' property into req_data
         var address = utils.clientAddress(req);
 
+        //Parses message
+        var clientInfo;
+        try{
+            clientInfo = JSON.parse(req_data);
+        }
+        catch (err){
+            var retObj = {message: defs.returnMessage.BAD_DATA};
+            res.end(JSON.stringify(retObj));
+            return;
+        }
+
         //redirects to given path
-        switch(req.url) {
-            case '/login':
-                req_data.login = true;
-                session.authenticateClient(req_data, function(err, retObj){
-                    if(err)
-                    {
-                        console.log('Error with client %s: %s', address, err.message);
-                    }
-                    else
-                    {
-                        console.log('Client %s connected successfully', address);
-                    }
-                    res.end(JSON.stringify(retObj));
-                });
-                break;
-            case '/testOp':
-                req_data.login = false;
-                session.authenticateClient(req_data, function(err, retObj){
+        if(req.url == '/login') {
+            session.login(clientInfo, function (err, retObj) {
+                if (err) {
+                    console.log('Error logging in client %s: %s', address, err.message);
+                }
+                else {
+                    console.log('Client %s logged in successfully.', address);
+                }
+                res.end(JSON.stringify(retObj));
+            });
+        }
+        else if(req.url == '/testOp'){
+                session.authenticateClient(clientInfo, function(err, retObj){
                     if(err)
                     {
                         console.log('Error with client %s: %s', address, err.message);
@@ -51,9 +67,23 @@ http.createServer(function (req, res) {
                     }
                     res.end(JSON.stringify(retObj));
                 });
-                break;
-            default:
-                res.end(JSON.stringify(session.returnCode.BAD_OPERATION))
+        }
+        else if(req.url == '/register'){
+            database.registerUser(clientInfo, defs.profileType.STUDENT,function(err){
+                var retObj;
+                if(err)
+                {
+                    retObj = {message: err.message};
+                    res.end(JSON.stringify(retObj));
+                }
+                else{
+                    retObj = {message: defs.returnMessage.SUCCESS};
+                    res.end(JSON.stringify(retObj));
+                }
+            })
+        }
+        else{
+            res.end(JSON.stringify(defs.returnMessage.BAD_OPERATION))
         }
     });
 

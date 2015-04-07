@@ -2,19 +2,94 @@
  * Created by Stéfano on 04/04/2015.
  */
 var Datastore = require('nedb');
+var defs = require('./definitions');
 
-function loadDB(cb) {
-    dbPath = './res/profiles.nedb';
+var dbPath = './res/profiles.nedb';
 
-    var db = new Datastore({ filename: dbPath });
+//THIS IS A SINGLETON PATTERN
+//It adds another layer of abstraction on top of 'nedb'.
+//This will prevent errors on handling the data that is written to and read from this database.
 
-    db.loadDatabase(function (err) {    // Callback is optional
-        cb(err, db)
-    });
+/**
+ * Loads database ONCE. Ignores if it's already loaded.
+ */
+function loadDB() {
+    if(!this.db)
+    {
+        this.db = new Datastore({ filename: dbPath });
+        this.db.loadDatabase(function(err){
+            if(err)
+            {
+                console.log(e.name + ": " + e.message);
+            }
+            else{
+                console.log("Database loaded successfully");
+            }
+        });
+    }
 }
 
-module.exports.getDBInstance = loadDB;
+/**
+ * Queries database
+ * @param opts - query details
+ * @param cb - callback(err, docs)
+ */
+function find(opts, cb){
+    this.db.find(opts,cb);
+}
 
+/**
+ * Inserts a new user into database
+ * @param entry - user info: {email, password, name}
+ * @param accType - Teacher, student or Admin
+ * @param cb - callback(err)
+ */
+function registerUser(entry, accType, cb){
+    var database = this.db;
+
+    if(!entry.email || !entry.password || !entry.name){
+        var invalidEntryError = {
+            name: defs.returnMessage.MISSING_DATA,
+            message: 'No email or password provided'
+        };
+        cb(invalidEntryError);
+        return;
+    }
+    else{
+        //
+        database.find({_id: entry.email}, function (err, docs){
+            if(err)
+            {
+                //internal db.find() error
+                cb(err);
+                return;
+            }
+            else if (docs.length>0)//if email is already registered
+            {
+                var userExistsError = {
+                    name: defs.returnMessage.EMAIL_NOT_UNIQUE,
+                    message: 'Email address \"'+ entry.email+ '\" already in use'
+                };
+
+                cb(userExistsError);
+                return;
+            }
+            else//if not, registers email
+            {
+                var newEntry = {_id: entry.email, password: entry.password, name: entry.name, type: accType};
+
+                database.insert(newEntry, function(err, newDoc){
+                    cb(err); //igonres newDoc, just passes possible error (probably 'null')
+                });
+            }
+        });
+
+    }
+}
+
+module.exports.loadDB = loadDB;
+module.exports.find = find;
+module.exports.registerUser = registerUser;
 
 
 /**
@@ -39,20 +114,17 @@ function populateDB_test(db){
         });
     }
 }
-
 function queryDB_test(db) {
     db.find({_id: ''}, function (err, docs) {
         for (var i = 0; i < docs.length; i++)
             console.log(docs[i])
     });
 }
-
-function updateDB_test(db)
-{
+function updateDB_test(db){
     // Replace a document by another
     db.update({ planet: 'Jup' }, {}, {}, function (err, numReplaced) {
         if(err)
-            console.log(err.message)
+            console.log(err.message);
 
         // numReplaced = 1
         // The doc #3 has been replaced by { _id: 'id3', planet: 'Pluton' }

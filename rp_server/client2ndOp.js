@@ -19,7 +19,7 @@ var test_options = {
 
 var testData = JSON.stringify({
     email: 'user1@test.com',
-    token: '7c00504b-edff-47e8-8f6c-d00f6e9ce769'
+    token: 'bba91f9a-664e-40d2-a936-01e17b7911ba'
 });
 
 var req = http.request(test_options, function (res) {
