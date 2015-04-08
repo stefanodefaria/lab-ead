@@ -6,9 +6,14 @@ var defs = require('./definitions');
 
 var dbPath = './res/profiles.nedb';
 
-//THIS IS A SINGLETON PATTERN
-//It adds another layer of abstraction on top of 'nedb'.
-//This will prevent errors on handling the data that is written to and read from this database.
+/**
+ * THIS IS A SINGLETON PATTERN
+ * It adds another layer of abstraction on top of 'nedb'.
+ * This will prevent errors on handling the data that is written to and read from this database.
+ * */
+
+//Loads singleton DB instance
+loadDB();
 
 /**
  * Loads database ONCE. Ignores if it's already loaded.
@@ -68,7 +73,7 @@ function registerUser(entry, accType, cb){
             {
                 var userExistsError = {
                     name: defs.returnMessage.EMAIL_NOT_UNIQUE,
-                    message: 'Email address \"'+ entry.email+ '\" already in use'
+                    message: 'Email address <'+ entry.email+ '> already in use'
                 };
 
                 cb(userExistsError);

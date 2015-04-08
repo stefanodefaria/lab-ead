@@ -9,7 +9,7 @@
 var http = require('http');
 
 /**
- * LOGIN DATA
+ * LOGIN SETUP
  */
 var login_options = {
     host: 'localhost',
@@ -23,7 +23,7 @@ var login_data = JSON.stringify({
 });
 
 /**
- * REGISTER DATA
+ * REGISTER SETUP
  */
 var register_options = {
     host: 'localhost',
@@ -35,6 +35,21 @@ var register_data = JSON.stringify({
     email: 'registration@test.com',
     password: '12345',
     name: 'Student One'
+});
+
+/**
+ * TEST OPERATION SETUP
+ */
+var test_options = {
+    host: 'localhost',
+    port: 8080,
+    method: 'POST',
+    path: '/testOp'
+};
+
+var test_data = JSON.stringify({
+    email: 'student1@test.com',
+    token: '73202950-8c99-428f-861d-9628d58e935c'
 });
 
 /**
@@ -50,7 +65,7 @@ function httpRequest(req_options, req_data){
         });
 
         res.on('end', function(){
-            console.log('message: '+message)
+            console.log('message: '+ message);
         });
     });
 
@@ -63,4 +78,5 @@ function httpRequest(req_options, req_data){
 }
 
 //httpRequest(login_options, login_data);
-httpRequest(register_options, register_data);
+httpRequest(test_options, test_data);
+//httpRequest(register_options, register_data);

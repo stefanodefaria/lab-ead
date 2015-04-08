@@ -5,9 +5,6 @@ var session = require('./sessionManager');
 var defs = require('./definitions');
 var utils = require('./utils');
 
-//Loads singleton DB instance
-database.loadDB();
-
 var port = 8080;
 
 //TODO
@@ -53,7 +50,7 @@ http.createServer(function (req, res) {
                 res.end(JSON.stringify(retObj));
             });
         }
-        else if(req.url == '/testOp'){
+        else if(req.url == '/testOp'){  //client needs to be logged in to call this operation
                 session.authenticateClient(clientInfo, function(err, retObj){
                     if(err)
                     {
@@ -63,7 +60,8 @@ http.createServer(function (req, res) {
                     {
                         //todo
                         //make operation here
-                        console.log('Client %s authenticated successfully', address);
+                        if(retObj.message == defs.returnMessage.SUCCESS)
+                            console.log('Client %s authenticated successfully', address);
                     }
                     res.end(JSON.stringify(retObj));
                 });

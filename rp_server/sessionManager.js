@@ -6,33 +6,25 @@ var utils = require('./utils');
 var defs = require('./definitions');
 var database = require('./database');
 
-//Loads singleton DB instance
-database.loadDB();
-
-/**
- * RETURN CODES:
- * 1- Sucess: Validation successful
- * 2- Bad Credentials: Wrong email or password
- * 3- Session timed out: last request was more than 'connectionTimeOut' ago
- * 4- Bad token: User provided different token (probably another client trying to operate with someone else's email)
- * 5- Bad operation
- */
-
 //this array keeps track of which users are online.
 //it will store objects like:
 //[clientToken: (uui token), lastConnectionTime: (date format)}
 var onlineTable = [];
 
-// 30 minutes connection timeout (in seconds)
-var connectionTimeOut = 30*60;
+// 10 minutes connection timeout (in seconds)
+//var connectionTimeOut = 10*60;
+var connectionTimeOut = 10;
 
+//starts routine, runs every 'interval'
+removeTimedOutClientsTask();
 
-//--------------------------------------------------------------------------------------------
-// This function will validate client's properties.
-// 1- If client is not logged in, it will validate 'email' and 'password'
-// 2- If client has logged in, it will validate 'email' and 'token' with the OnlineTable array
-// req_data -->object {login: TRUE/false, message: data received from client}
-// User is online --> is in OnlineTable array
+/**
+ * This function will AUTHENTICATE client's session/credentials.
+ * 1- If client is not logged in, it will validate 'email' and 'password'
+ * 2- If client has logged in, it will validate 'email' and 'token' with the OnlineTable array
+ * @param clientInfo - Email, password and uuid token
+ * @param cb - callback
+ */
 function authenticateClient(clientInfo, cb)
 {
     //object that will be returned to callback
@@ -78,9 +70,10 @@ function authenticateClient(clientInfo, cb)
                 return; //exits function
             })
 
-        }else if(onlineTable.indexOf(clientInfo.email) !== undefined) //checks if 'email' is in 'onlineTable' array (user has logged in)
+        }else if(onlineTable.contains(clientInfo.email)) //checks if 'email' is in 'onlineTable' array (user has logged in)
         {
             var clientEntry = onlineTable[clientInfo.email];
+
 
             //checks for valid token and timeout
             var tokenIsValid = clientEntry.clientToken == clientInfo.token;
@@ -111,8 +104,8 @@ function authenticateClient(clientInfo, cb)
     catch (err)
     {
         //TODO
-        //add defs.returnMessage.BAD_DATA
-        //add defs.returnMessage.SERVER_ERROR
+        //add defs.returnCode.BAD_DATA
+        //add defs.returnCode.SERVER_ERROR
 
         if(err.type && err.type ==='JSON_PARSE')
         {
@@ -124,7 +117,7 @@ function authenticateClient(clientInfo, cb)
         }
 
         console.log('Client XX failed to connect. %s: %s ',err.name,  err.message);
-        cb(null, ret_obj);
+        cb(err, ret_obj);
     }
 }
 
@@ -154,20 +147,60 @@ function validateCredentials(email, password, cb)
     });
 }
 
+/**
+ * Logs in clients, calling 'authenticateClient' function
+ * @param clientInfo - username and password
+ * @param cb - callback
+ */
 function login(clientInfo, cb){
     clientInfo.login = true;
     authenticateClient(clientInfo, function(err, retObj){
-        if(err)
-        {
+        if(err){
             cb(err);
             return;
         }
-        else
-        {
+        else{
             cb(null, retObj);
             return;
         }
     });
+}
+
+/**
+ * Removes clients that timed out from 'onlineTable' array
+ * Should execute every (connectionTimeOut + timeMargin) seconds
+ * Its purpose is to clean memory
+ */
+function removeTimedOutClientsTask(){
+    var timeMargin = connectionTimeOut * 1; //100% margin before changing 'timed out' to 'not logged in'
+    var interval = (connectionTimeOut + timeMargin) * 1000; //convert to milliseconds
+    setInterval(function(){
+        var currentTime = utils.currentTimeInSeconds();
+        var count =0;
+        for(entry in onlineTable){
+            if(onlineTable.hasOwnProperty(entry) && onlineTable[entry].hasOwnProperty(lastConnectionTime)
+                && onlineTable[entry].lastConnectionTime + timeMargin < currentTime){
+                delete onlineTable[entry];
+                count++;
+            }
+        }
+        if(count>0){
+            console.log("Removed %d timed out clients from memory", count);
+        }
+
+    }, interval);
+}
+
+/**
+ * Checks weather an object is index of an element in array
+ * @param obj - candidate of index
+ * @returns {boolean}
+ */
+onlineTable.contains = function(obj){
+    if(onlineTable[obj]){
+        return true;
+    }
+    return false;
 }
 
 module.exports.login = login;

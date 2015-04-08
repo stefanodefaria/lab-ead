@@ -2,19 +2,17 @@
  * Created by Stéfano on 06/04/2015.
  */
 
-//TODO
-    //change these 'codes' into nicely readable text
-const returnMessage = {
-    SUCCESS: 'SUCCESS',
-    BAD_CREDENTIALS: 'BAD_CREDENTIALS',
-    SESSION_TIMED_OUT: 'SESSION_TIMED_OUT',
-    BAD_TOKEN: 'BAD_TOKEN',
-    BAD_OPERATION: 'BAD_OPERATION',
-    CLIENT_NOT_LOGGED_IN: 'CLIENT_NOT_LOGGED_IN',
-    BAD_DATA: 'BAD_DATA',
-    SERVER_ERROR: 'SERVER_ERROR',
-    EMAIL_NOT_UNIQUE: 'EMAIL_NOT_UNIQUE',
-    MISSING_DATA: 'MISSING_DATA'
+const returnCode = {
+    SUCCESS: 'SUCCESS',                             //Operation successful
+    BAD_CREDENTIALS: 'BAD_CREDENTIALS',             //Incorrect email or password
+    SESSION_TIMED_OUT: 'SESSION_TIMED_OUT',         //It's passed more than 'timeout' since last request
+    BAD_TOKEN: 'BAD_TOKEN',                         //Incorrect client uuid token
+    BAD_OPERATION: 'BAD_OPERATION',                 //Invalid operation (ie path)
+    CLIENT_NOT_LOGGED_IN: 'CLIENT_NOT_LOGGED_IN',   //Client not logged in trying to perform operation
+    BAD_DATA: 'BAD_DATA',                           //Corrupt data provided by client
+    SERVER_ERROR: 'SERVER_ERROR',                   //Internal unexpected server error
+    EMAIL_NOT_UNIQUE: 'EMAIL_NOT_UNIQUE',           //Email already used, when trying to register
+    MISSING_DATA: 'MISSING_DATA'                    //Missing parameter data (ie email, password, username)
 };
 
 const profileType = {
@@ -23,8 +21,5 @@ const profileType = {
     ADMIN: 'admin'
 };
 
-//TODO
-//create 'errorCode', and move some 'returnMessages' items to 'errorCode'.
-
-module.exports.returnMessage = returnMessage;
+module.exports.returnMessage = returnCode;
 module.exports.profileType = profileType;
