@@ -6,14 +6,16 @@ var utils = require('./utils');
 var defs = require('./definitions');
 var database = require('./database');
 
+//Starts DB to be used in this module
+database.loadDB();
+
 //this array keeps track of which users are online.
 //it will store objects like:
 //[clientToken: (uui token), lastConnectionTime: (date format)}
 var onlineTable = [];
 
 // 10 minutes connection timeout (in seconds)
-//var connectionTimeOut = 10*60;
-var connectionTimeOut = 10;
+var connectionTimeOut = 10*60;
 
 //starts routine, runs every 'interval'
 removeTimedOutClientsTask();
@@ -129,6 +131,7 @@ function authenticateClient(clientInfo, cb)
  */
 function validateCredentials(email, password, cb)
 {
+    console.log('tentativa')
     database.find({_id: email, password: password}, function (err, docs) {
         if(err)
         {
@@ -178,8 +181,7 @@ function removeTimedOutClientsTask(){
         var currentTime = utils.currentTimeInSeconds();
         var count =0;
         for(entry in onlineTable){
-            if(onlineTable.hasOwnProperty(entry) && onlineTable[entry].hasOwnProperty(lastConnectionTime)
-                && onlineTable[entry].lastConnectionTime + timeMargin < currentTime){
+            if(onlineTable[entry].lastConnectionTime && onlineTable[entry].lastConnectionTime + timeMargin < currentTime){
                 delete onlineTable[entry];
                 count++;
             }
@@ -201,7 +203,7 @@ onlineTable.contains = function(obj){
         return true;
     }
     return false;
-}
+};
 
 module.exports.login = login;
 module.exports.authenticateClient = authenticateClient;

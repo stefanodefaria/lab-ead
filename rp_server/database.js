@@ -12,9 +12,6 @@ var dbPath = './res/profiles.nedb';
  * This will prevent errors on handling the data that is written to and read from this database.
  * */
 
-//Loads singleton DB instance
-loadDB();
-
 /**
  * Loads database ONCE. Ignores if it's already loaded.
  */
@@ -25,7 +22,7 @@ function loadDB() {
         this.db.loadDatabase(function(err){
             if(err)
             {
-                console.log(e.name + ": " + e.message);
+                console.log("Error loading database. " + err.name + ": " + err.message);
             }
             else{
                 console.log("Database loaded successfully");

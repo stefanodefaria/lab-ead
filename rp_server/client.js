@@ -77,6 +77,6 @@ function httpRequest(req_options, req_data){
     req.end();
 }
 
-//httpRequest(login_options, login_data);
-httpRequest(test_options, test_data);
+httpRequest(login_options, login_data);
+//httpRequest(test_options, test_data);
 //httpRequest(register_options, register_data);

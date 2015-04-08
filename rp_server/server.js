@@ -7,6 +7,9 @@ var utils = require('./utils');
 
 var port = 8080;
 
+//Starts DB to be used in this module
+database.loadDB();
+
 //TODO
 //create httpS server instead
 http.createServer(function (req, res) {
