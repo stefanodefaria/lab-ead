@@ -32,7 +32,7 @@ var register_options = {
     path: '/register'
 };
 var register_data = JSON.stringify({
-    email: 'registration@test.com',
+    email: 'student3@test.com',
     password: '12345',
     name: 'Student One'
 });
@@ -46,10 +46,9 @@ var test_options = {
     method: 'POST',
     path: '/testOp'
 };
-
 var test_data = JSON.stringify({
     email: 'student1@test.com',
-    token: '73202950-8c99-428f-861d-9628d58e935c'
+    token: '414df7b5-3fc6-46bd-b526-84bc97bc33e9'
 });
 
 /**
@@ -77,6 +76,6 @@ function httpRequest(req_options, req_data){
     req.end();
 }
 
-httpRequest(login_options, login_data);
+//httpRequest(login_options, login_data);
 //httpRequest(test_options, test_data);
 //httpRequest(register_options, register_data);

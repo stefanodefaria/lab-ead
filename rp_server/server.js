@@ -1,5 +1,5 @@
 /** Created by Stéfano on 03/04/2015. **/
-var http = require('http');
+var http = require("http");
 var database = require('./database');
 var session = require('./sessionManager');
 var defs = require('./definitions');
@@ -28,14 +28,15 @@ http.createServer(function (req, res) {
 
     req.on('end', function() {
         //adds 'address' property into req_data
-        var address = utils.clientAddress(req);
 
         //Parses message
         var clientInfo;
         try{
             clientInfo = JSON.parse(req_data);
+            clientInfo.address = utils.clientAddress(req);
         }
-        catch (err){
+        catch (err){ //JSON.parse only throws SyntaxError (probably data received is corrupt or not a JSON)
+            console.log("Received BAD_DATA request from %s.", utils.clientAddress(req));
             var retObj = {message: defs.returnMessage.BAD_DATA};
             res.end(JSON.stringify(retObj));
             return;
@@ -43,44 +44,44 @@ http.createServer(function (req, res) {
 
         //redirects to given path
         if(req.url == '/login') {
-            session.login(clientInfo, function (err, retObj) {
-                if (err) {
-                    console.log('Error logging in client %s: %s', address, err.message);
+            session.login(clientInfo, function (retObj) {
+
+                if(retObj.message == defs.returnMessage.SUCCESS){
+                    console.log('Client %s <%s> logged in successfully', clientInfo.address, clientInfo.email);
                 }
-                else {
-                    console.log('Client %s logged in successfully.', address);
+                else{
+                    console.log('Client %s <%s> failed to login: %s', clientInfo.address, clientInfo.email, retObj.message);
                 }
+
                 res.end(JSON.stringify(retObj));
             });
         }
         else if(req.url == '/testOp'){  //client needs to be logged in to call this operation
-                session.authenticateClient(clientInfo, function(err, retObj){
-                    if(err)
-                    {
-                        console.log('Error with client %s: %s', address, err.message);
-                    }
-                    else
-                    {
+                session.authenticateClient(clientInfo, function(retObj){
+
+                    if(retObj.message == defs.returnMessage.SUCCESS){
+                        console.log('Client %s <%s> performed operation successfully', clientInfo.address, clientInfo.email);
                         //todo
                         //make operation here
-                        if(retObj.message == defs.returnMessage.SUCCESS)
-                            console.log('Client %s authenticated successfully', address);
                     }
+                    else{
+                        console.log('Client %s <%s> failed to perform operation: %s', clientInfo.address, clientInfo.email, retObj.message);
+                    }
+
                     res.end(JSON.stringify(retObj));
                 });
         }
         else if(req.url == '/register'){
-            database.registerUser(clientInfo, defs.profileType.STUDENT,function(err){
-                var retObj;
-                if(err)
-                {
-                    retObj = {message: err.message};
-                    res.end(JSON.stringify(retObj));
+            database.registerUser(clientInfo, defs.profileType.STUDENT,function(retObj){
+
+                if(retObj.message == defs.returnMessage.SUCCESS){
+                    console.log('Client %s <%s> registered successfully', clientInfo.address, clientInfo.email);
                 }
                 else{
-                    retObj = {message: defs.returnMessage.SUCCESS};
-                    res.end(JSON.stringify(retObj));
+                    console.log('Client %s <%s> failed to register: %s', clientInfo.address, clientInfo.email, retObj.message);
                 }
+
+                res.end(JSON.stringify(retObj));
             })
         }
         else{
@@ -89,5 +90,11 @@ http.createServer(function (req, res) {
     });
 
 }).listen(port);
+
+//function logError(err, address){
+//    var message = "Error handling request from <" + clientInfo.address+ ">. " + err.name + ": " + err.message;
+//    console.log(message);
+//}
+
 
 console.log('Example app listening at %d',port);

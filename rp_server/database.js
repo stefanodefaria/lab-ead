@@ -3,6 +3,7 @@
  */
 var Datastore = require('nedb');
 var defs = require('./definitions');
+var utils = require('./utils');
 
 var dbPath = './res/profiles.nedb';
 
@@ -33,6 +34,7 @@ function loadDB() {
 
 /**
  * Queries database
+ * WARNING: this function DOES NOT handle errors
  * @param opts - query details
  * @param cb - callback(err, docs)
  */
@@ -44,48 +46,57 @@ function find(opts, cb){
  * Inserts a new user into database
  * @param entry - user info: {email, password, name}
  * @param accType - Teacher, student or Admin
- * @param cb - callback(err)
+ * @param cb - callback({message: "return message"})
  */
 function registerUser(entry, accType, cb){
     var database = this.db;
+    var ret_obj = {message: "none"};
 
+    //checks if user provided email, password and name
     if(!entry.email || !entry.password || !entry.name){
-        var invalidEntryError = {
-            name: defs.returnMessage.MISSING_DATA,
-            message: 'No email or password provided'
-        };
-        cb(invalidEntryError);
-        return;
+        ret_obj.message = defs.returnMessage.MISSING_DATA;
+
+        //since registration is async, callback must be called now
+        cb(ret_obj);
+        //return;
     }
     else{
         //
         database.find({_id: entry.email}, function (err, docs){
-            if(err)
-            {
+            if(err){
                 //internal db.find() error
-                cb(err);
-                return;
-            }
-            else if (docs.length>0)//if email is already registered
-            {
-                var userExistsError = {
-                    name: defs.returnMessage.EMAIL_NOT_UNIQUE,
-                    message: 'Email address <'+ entry.email+ '> already in use'
-                };
+                ret_obj.message = utils.catchErr(err);
 
-                cb(userExistsError);
-                return;
+                //since registration is async, callback must be called now
+                cb(ret_obj);
+                //return;
+            }
+            else if (docs.length>0){//if email is already registered
+                ret_obj.message = defs.returnMessage.EMAIL_NOT_UNIQUE;
+
+                //since registration is async, callback must be called now
+                cb(ret_obj);
+                //return;
             }
             else//if not, registers email
             {
                 var newEntry = {_id: entry.email, password: entry.password, name: entry.name, type: accType};
 
                 database.insert(newEntry, function(err, newDoc){
-                    cb(err); //igonres newDoc, just passes possible error (probably 'null')
+                    if(err){
+                        //internal db.insert() error
+                        ret_obj.message = utils.catchErr(err);
+                    }
+                    else{
+                        ret_obj.message = defs.returnMessage.SUCCESS;
+                    }
+                    cb(ret_obj);
+                    //return;
                 });
+
+                //cb will be called within database.insert callback
             }
         });
-
     }
 }
 
@@ -96,7 +107,7 @@ module.exports.registerUser = registerUser;
 
 /**
  * SOMENTE PARA TESTES
- */
+
 
 function populateDB_test(db){
 
@@ -136,3 +147,5 @@ function updateDB_test(db){
 
     queryDB_test(db)
 }
+
+ */
