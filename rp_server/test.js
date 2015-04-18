@@ -1,19 +1,35 @@
 /**
  * Created by Stéfano on 07/04/2015.
  */
+var defs = require('./definitions');
 
-var array = [];
-array.teste1 = 1;
-array['teste2'] = {teste: 123};
-array['teste3'] = 1;
+var login_data = {
+    email: 'student1@test.com',
+    password: '12345',
+    name: 'name'
+};
 
-for (var key in array) {
-    delete(array[key])
-}
-for (var key in array) {
-    if (array.hasOwnProperty(key)) {
-        console.log (key + " -> " + array[key]);
-       // delete array[key]
+function verify(operation, data){
+
+    if(!defs.operationRequiredData.containsProp(operation)){
+        return defs.returnMessage.BAD_OPERATION;
     }
+
+    var parameters = defs.operationRequiredData[operation];
+    for (var i=0; i< parameters.length; i++) {
+        if (!data.hasOwnProperty(parameters[i])) {
+            return false;
+        }
+    }
+    return true;
 }
-console.log(array['teste2'])
+
+
+
+console.log(verify('alksjd', login_data));
+
+//
+//var array = [];
+//array['1'] = 0;
+//
+//console.log(array.containsProp('1'));

@@ -43,7 +43,7 @@ function find(opts, cb){
 }
 
 /**
- * Inserts a new user into database
+ *  ASYNC - Inserts a new user into database
  * @param entry - user info: {email, password, name}
  * @param accType - Teacher, student or Admin
  * @param cb - callback({message: "return message"})
@@ -52,52 +52,41 @@ function registerUser(entry, accType, cb){
     var database = this.db;
     var ret_obj = {message: "none"};
 
-    //checks if user provided email, password and name
-    if(!entry.email || !entry.password || !entry.name){
-        ret_obj.message = defs.returnMessage.MISSING_DATA;
+    database.find({_id: entry.email}, function (err, docs){
+        if(err){
+            //internal db.find() error
+            ret_obj.message = utils.catchErr(err);
 
-        //since registration is async, callback must be called now
-        cb(ret_obj);
-        //return;
-    }
-    else{
-        //
-        database.find({_id: entry.email}, function (err, docs){
-            if(err){
-                //internal db.find() error
-                ret_obj.message = utils.catchErr(err);
+            //since registration is async, callback must be called now
+            cb(ret_obj);
+            //return;
+        }
+        else if (docs.length>0){//if email is already registered
+            ret_obj.message = defs.returnMessage.EMAIL_NOT_UNIQUE;
 
-                //since registration is async, callback must be called now
+            //since registration is async, callback must be called now
+            cb(ret_obj);
+            //return;
+        }
+        else//if not, registers email
+        {
+            var newEntry = {_id: entry.email, password: entry.password, name: entry.name, type: accType};
+
+            database.insert(newEntry, function(err, newDoc){
+                if(err){
+                    //internal db.insert() error
+                    ret_obj.message = utils.catchErr(err);
+                }
+                else{
+                    ret_obj.message = defs.returnMessage.SUCCESS;
+                }
                 cb(ret_obj);
                 //return;
-            }
-            else if (docs.length>0){//if email is already registered
-                ret_obj.message = defs.returnMessage.EMAIL_NOT_UNIQUE;
+            });
 
-                //since registration is async, callback must be called now
-                cb(ret_obj);
-                //return;
-            }
-            else//if not, registers email
-            {
-                var newEntry = {_id: entry.email, password: entry.password, name: entry.name, type: accType};
-
-                database.insert(newEntry, function(err, newDoc){
-                    if(err){
-                        //internal db.insert() error
-                        ret_obj.message = utils.catchErr(err);
-                    }
-                    else{
-                        ret_obj.message = defs.returnMessage.SUCCESS;
-                    }
-                    cb(ret_obj);
-                    //return;
-                });
-
-                //cb will be called within database.insert callback
-            }
-        });
-    }
+            //cb will be called within database.insert callback
+        }
+    });
 }
 
 module.exports.loadDB = loadDB;

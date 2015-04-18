@@ -2,7 +2,7 @@
  * Created by Stéfano on 06/04/2015.
  */
 
-const returnCode = {
+const returnMessage = {
     SUCCESS: 'SUCCESS',                             //Operation successful
     BAD_CREDENTIALS: 'BAD_CREDENTIALS',             //Incorrect email or password
     SESSION_TIMED_OUT: 'SESSION_TIMED_OUT',         //It's passed more than 'timeout' since last request
@@ -21,5 +21,32 @@ const profileType = {
     ADMIN: 'admin'
 };
 
-module.exports.returnMessage = returnCode;
+const operations = [
+    'login',
+    'logout',
+    'register',
+    'updateInfo',
+    'testOp'
+];
+
+const operationRequiredData = {
+    login: ['email', 'password'],
+    logout: ['email', 'token'],
+    register: ['email', 'password', 'name'],
+    updateInfo: ['email', 'token', 'newEmail', 'newPassword', 'newName'],
+    testOp: ['email', 'token']
+};
+
+const operationReturnData = {
+    login: {message: '', token: '', timeout: '-1'},
+    logout: {message: ''},
+    register: {message: ''},
+    updateInfo: {message: ''},
+    testOp: {message: ''}
+};
+
+module.exports.returnMessage = returnMessage;
 module.exports.profileType = profileType;
+module.exports.operations = operations;
+module.exports.operationRequiredData = operationRequiredData;
+module.exports.operationReturnData = operationReturnData;

@@ -1,6 +1,6 @@
 {"_id":"admin@test.com","password":"12345","type":"admin"}
-{"_id":"registration@test.com","password":"12345","name":"Student One","type":"student"}
 {"_id":"student1@test.com","password":"12345","type":"student"}
 {"_id":"student2@test.com","password":"12345","type":"student"}
-{"_id":"teacher@test.com","password":"12345","type":"teacher"}
 {"_id":"student3@test.com","password":"12345","name":"Student One","type":"student"}
+{"_id":"student4@test.com","password":"12345","name":"Student 4","type":"student"}
+{"_id":"teacher@test.com","password":"12345","type":"teacher"}
