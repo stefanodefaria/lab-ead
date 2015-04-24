@@ -1,4 +1,4 @@
-/** Created by Stéfano on 03/04/2015. **/
+/** Created by Stï¿½fano on 03/04/2015. **/
 var http = require("http");
 var database = require('./database');
 var session = require('./sessionManager');
@@ -40,6 +40,9 @@ http.createServer(function (req, res) {
             if(validation.message == defs.returnMessage.BAD_OPERATION){
                 //since retObj was 'undefined', create a new one
                 retObj = {message: validation.message};
+            }
+            else {
+                retObj.message = validation.message;
             }
             res.end(JSON.stringify(retObj));
             return;
