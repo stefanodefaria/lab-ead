@@ -1,4 +1,4 @@
-package com.example.stefano.myapplication;
+package com.lab.labead;
 
 import android.app.Application;
 import android.test.ApplicationTestCase;

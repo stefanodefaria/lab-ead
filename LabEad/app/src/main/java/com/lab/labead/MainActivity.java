@@ -1,4 +1,4 @@
-package com.example.stefano.myapplication;
+package com.lab.labead;
 
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
@@ -14,7 +14,6 @@ public class MainActivity extends ActionBarActivity {
         setContentView(R.layout.activity_main);
     }
 
-    public boolean test(){return false;}
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
