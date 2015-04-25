@@ -14,7 +14,7 @@ public class MainActivity extends ActionBarActivity {
         setContentView(R.layout.activity_main);
     }
 
-    public boolean test(){return true;}
+    public boolean test(){return false;}
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
