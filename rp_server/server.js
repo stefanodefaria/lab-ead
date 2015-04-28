@@ -1,14 +1,10 @@
 /** Created by St�fano on 03/04/2015. **/
 var http = require("http");
-var database = require('./database');
-var session = require('./sessionManager');
 var defs = require('./definitions');
 var utils = require('./utils');
+var ops = require('./operationManager');
 
 var port = 8080;
-
-//Starts DB to be used in this module
-database.loadDB();
 
 //TODO
 //create httpS server instead
@@ -31,9 +27,7 @@ http.createServer(function (req, res) {
         //this call will either return a 'returnMessage' or a Object that hold client info
         var validation = validateRequest(req, req_data);
 
-        //will return 'undefined' in case of bad_operation
-        var retObj = defs.operationReturnData[utils.extractOperation(req)];
-
+        // if validation FAILS
         if(validation.message != defs.returnMessage.SUCCESS)
         {
             console.log("Invalid request from %s: %s.", utils.clientAddress(req), validation.message);
@@ -42,6 +36,9 @@ http.createServer(function (req, res) {
                 retObj = {message: validation.message};
             }
             else {
+
+                //will return 'undefined' in case of bad_operation
+                var retObj = ops.operations[utils.extractOperation(req)].reqData;
                 retObj.message = validation.message;
             }
             res.end(JSON.stringify(retObj));
@@ -51,53 +48,16 @@ http.createServer(function (req, res) {
         //At this point, request has been validated
         var clientInfo = validation.clientInfo;
 
-        //redirects to given path
-        if(req.url == '/login') {
-            session.login(clientInfo, function (retObj) {
-
-                if(retObj.message == defs.returnMessage.SUCCESS){
-                    console.log('Client %s <%s> logged in successfully', clientInfo.address, clientInfo.email);
-                }
-                else{
-                    console.log('Client %s <%s> failed to login: %s', clientInfo.address, clientInfo.email, retObj.message);
-                }
-
-                res.end(JSON.stringify(retObj));
-            });
-        }
-        else if(req.url == '/testOp'){  //client needs to be logged in to call this operation
-
-            retObj.message = session.authenticateClient(clientInfo);
-
-            if(retObj.message == defs.returnMessage.SUCCESS){
-                console.log('Client %s <%s> performed operation successfully', clientInfo.address, clientInfo.email);
-                //todo
-                //make operation here
-            }
-            else{
-                console.log('Client %s <%s> failed to perform operation: %s', clientInfo.address, clientInfo.email, retObj.message);
-            }
-
+        //redirects to operation based on url path
+        var op = utils.extractOperation(req);
+        ops.processRequest(op, clientInfo, function (retObj) {
             res.end(JSON.stringify(retObj));
-        }
-        else if(req.url == '/register'){
-            database.registerUser(clientInfo, defs.profileType.STUDENT,function(retObj){
+        });
 
-                if(retObj.message == defs.returnMessage.SUCCESS){
-                    console.log('Client %s <%s> registered successfully', clientInfo.address, clientInfo.email);
-                }
-                else{
-                    console.log('Client %s <%s> failed to register: %s', clientInfo.address, clientInfo.email, retObj.message);
-                }
-
-                res.end(JSON.stringify(retObj));
-            })
-        }
     });
 
 }).listen(port);
 
-console.log('Example app listening at %d',port);
 
 /**
  * Validates client request
@@ -114,7 +74,7 @@ function validateRequest(req, data){
     var parsedObj;
 
     //VALIDATES OPERATION (i.e. http path)
-    if(!defs.operationRequiredData.containsProp(operation)){
+    if (!ops.operations.containsProp(operation)) {
         validation_obj.message = defs.returnMessage.BAD_OPERATION;
         return validation_obj;
     }
@@ -129,7 +89,7 @@ function validateRequest(req, data){
     }
 
     //CHECK DATA PROPERTIES
-    var properties = defs.operationRequiredData[operation];
+    var properties = ops.operations[operation].reqData;
     for (var i=0; i< properties.length; i++) {
         if (!parsedObj.hasOwnProperty(properties[i])) {
             validation_obj.message = defs.returnMessage.MISSING_DATA;
@@ -143,3 +103,5 @@ function validateRequest(req, data){
     validation_obj.clientInfo = parsedObj;
     return validation_obj;
 }
+
+console.log('Example app listening at %d', port);

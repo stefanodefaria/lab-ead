@@ -1,0 +1,20 @@
+{
+  "name": "rp_server",
+  "version": "0.0.1",
+  "description": "TFG Unifei - Laboratório de Ensino a Distância",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/stefanodefaria/lab-ead.git"
+  },
+  "author": "stefanodefaria@gmail.com",
+  "license": "ISC",
+  "dependencies": {
+    "nedb": "^1.1.2",
+    "uuid": "^2.0.1"
+  }
+}

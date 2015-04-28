@@ -1,5 +1,5 @@
 /**
- * Created by Stéfano on 03/04/2015.
+ * Created by Stï¿½fano on 03/04/2015.
  */
 
 var defs = require('./definitions');
@@ -62,6 +62,9 @@ function extractOperation(req){
 Object.prototype.containsProp = function(idx) {
     return this[idx] ? true : false;
 };
+
+// TODO
+// create 'clone object' function
 
 module.exports.clientAddress = clientAddress;
 module.exports.currentTimeInSeconds = currentTimeInSeconds;

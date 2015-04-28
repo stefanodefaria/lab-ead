@@ -1,5 +1,5 @@
 /**
- * Created by Stéfano on 07/04/2015.
+ * Created by Stï¿½fano on 07/04/2015.
  */
 var defs = require('./definitions');
 
@@ -25,11 +25,10 @@ function verify(operation, data){
 }
 
 
+var x = [];
+x["a"] = 'apple';
+x['b'] = 'banana';
 
-console.log(verify('alksjd', login_data));
-
-//
-//var array = [];
-//array['1'] = 0;
-//
-//console.log(array.containsProp('1'));
+console.log(x);
+delete x['b'];
+console.log(x)

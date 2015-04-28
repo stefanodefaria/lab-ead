@@ -1,5 +1,5 @@
 /**
- * Created by Stéfano on 03/04/2015.
+ * Created by Stï¿½fano on 03/04/2015.
  */
 var uuid = require('uuid');
 var utils = require('./utils');
@@ -25,6 +25,7 @@ removeTimedOutClientsTask();
  * 1- If client is not logged in, it will validate 'email' and 'password'
  * 2- If client has logged in, it will validate 'email' and 'token' with the OnlineTable array
  * @param clientInfo - Email, password and uuid token
+ * @return string  - return message
  */
 function authenticateClient(clientInfo)
 {
@@ -86,7 +87,7 @@ function validateCredentials(email, password, cb){
 }
 
 /**
- * Logs in clients, calling 'authenticateClient' function
+ * Logs in clients, calling 'validateCredentials' function
  * WARNING: authentication is made asynchronously
  * @param clientInfo - username and password
  * @param cb - callback
@@ -140,6 +141,25 @@ function login(clientInfo, cb){
 }
 
 /**
+ * Logs out clients, calling 'authenticateClient' function
+ * @param clientInfo - username and password
+ */
+function logout(clientInfo) {
+    var retMsg = authenticateClient(clientInfo);
+
+    if (retMsg == defs.returnMessage.SUCCESS) {
+        console.log('Client %s <%s> logged out successfully', clientInfo.address, clientInfo.email);
+        delete onlineTable[clientInfo.email];
+    }
+    else {
+        console.log('Client %s <%s> failed to logged out: %s', clientInfo.address, clientInfo.email, retMsg.message);
+    }
+
+    return retMsg;
+
+}
+
+/**
  * Removes clients that timed out from 'onlineTable' array
  * Should execute every (connectionTimeOut + timeMargin) seconds
  * Its purpose is to clean memory
@@ -152,7 +172,7 @@ function removeTimedOutClientsTask(){
         var currentTime = utils.currentTimeInSeconds();
         var count =0;
         for(var entry in onlineTable){
-            if(onlineTable[entry].lastConnectionTime && onlineTable[entry].lastConnectionTime + timeMargin < currentTime){
+            if (onlineTable[entry].lastConnectionTime && (onlineTable[entry].lastConnectionTime + timeMargin < currentTime)) {
                 delete onlineTable[entry];
                 count++;
             }
@@ -174,6 +194,7 @@ onlineTable.contains = function(obj){
 };
 
 module.exports.login = login;
+module.exports.logout = logout;
 module.exports.authenticateClient = authenticateClient;
 module.exports.connectionTimeOut = connectionTimeOut;
 

@@ -1,5 +1,5 @@
 /**
- * Created by Stéfano on 03/04/2015.
+ * Created by Stï¿½fano on 03/04/2015.
  */
 
 /**
@@ -32,7 +32,7 @@ var register_options = {
     path: '/register'
 };
 var register_data = JSON.stringify({
-    email: 'student4@test.com',
+    email: 'student9@test.com',
     password: '12345',
     name: 'Student 4'
 });
@@ -44,7 +44,7 @@ var test_options = {
     host: 'localhost',
     port: 8080,
     method: 'POST',
-    path: '/testOp'
+    path: '/logout'
 };
 var test_data = JSON.stringify({
     email: 'student1@test.com',
