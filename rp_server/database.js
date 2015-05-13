@@ -50,22 +50,22 @@ function find(opts, cb){
  */
 function registerUser(entry, accType, cb){
     var database = this.db;
-    var ret_obj = {message: "none"};
+    var retMsg;
 
     database.find({_id: entry.email}, function (err, docs){
         if(err){
             //internal db.find() error
-            ret_obj.message = utils.catchErr(err);
+            retMsg = utils.catchErr(err);
 
             //since registration is async, callback must be called now
             cb(ret_obj);
             //return;
         }
         else if (docs.length>0){//if email is already registered
-            ret_obj.message = defs.returnMessage.EMAIL_NOT_UNIQUE;
+            retMsg = defs.returnMessage.EMAIL_NOT_UNIQUE;
 
             //since registration is async, callback must be called now
-            cb(ret_obj);
+            cb(retMsg);
             //return;
         }
         else//if not, registers email
@@ -75,12 +75,12 @@ function registerUser(entry, accType, cb){
             database.insert(newEntry, function(err, newDoc){
                 if(err){
                     //internal db.insert() error
-                    ret_obj.message = utils.catchErr(err);
+                    retMsg = utils.catchErr(err);
                 }
                 else{
-                    ret_obj.message = defs.returnMessage.SUCCESS;
+                    retMsg = defs.returnMessage.SUCCESS;
                 }
-                cb(ret_obj);
+                cb(retMsg);
                 //return;
             });
 
@@ -89,13 +89,56 @@ function registerUser(entry, accType, cb){
     });
 }
 
+/**
+ *  ASYNC - Updates user info
+ * @param email - user email: 'example@123.com'
+ * @param entry - user info: {email, newEmail, new password, new name}
+ * @param cb - callback('message')
+ */
+function updateUser(email, entry, cb){
+//TODO
+    //VERIFICAR ESSA FUNÇÃO
+    var retMsg;
+
+    db.update({ _id: email }, entry, function (err, numUpdated) {
+        if(err){
+            //internal db.update() error
+            retMsg = utils.catchErr(err);
+
+            //since update is async, callback must be called now
+            cb(retMsg);
+            //return;
+        }
+        else if (numUpdated!=1){//if updated ONE entry
+            retMsg = defs.returnMessage.SUCCESS;
+
+            //since registration is async, callback must be called now
+            cb(retMsg);
+        }
+        else// then something is really wrong
+        {
+            console.log('ERROOOOOOOOOO');
+        }
+    });
+}
+
 module.exports.loadDB = loadDB;
 module.exports.find = find;
 module.exports.registerUser = registerUser;
+module.exports.updateUser = updateUser;
+
 
 
 /**
  * SOMENTE PARA TESTES
+
+ loadDB();
+
+ db.update({_id: 'teacher@test.com'}, {_id: 'teacher123@test.com'}, function(err, num){
+    if(err)
+        console.log(err)
+    console.log('num: '+ num)
+})
 
 
 function populateDB_test(db){

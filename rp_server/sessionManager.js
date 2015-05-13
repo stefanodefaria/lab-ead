@@ -30,7 +30,7 @@ removeTimedOutClientsTask();
 function authenticateClient(clientInfo)
 {
     //object that will be returned to callback
-    var ret_msg = "none";
+    var retMsg = "none";
     try{
 
         if(onlineTable.contains(clientInfo.email)){ //checks if 'email' is in 'onlineTable' array (user has logged in)
@@ -42,26 +42,26 @@ function authenticateClient(clientInfo)
 
             if (!tokenIsValid){//invalid token
                 //ret_obj.message=defs.returnMessage.BAD_TOKEN;
-                ret_msg = defs.returnMessage.BAD_CREDENTIALS;
+                retMsg = defs.returnMessage.BAD_CREDENTIALS;
             }
             else if(timedOut){//session timed out
-                ret_msg = defs.returnMessage.SESSION_TIMED_OUT;
+                retMsg = defs.returnMessage.SESSION_TIMED_OUT;
             }
             else{//successfully authenticated
                 onlineTable[clientInfo.email].lastConnectionTime = utils.currentTimeInSeconds();
-                ret_msg = defs.returnMessage.SUCCESS;
+                retMsg = defs.returnMessage.SUCCESS;
             }
         }
         else{//client has not logged in
             //ret_obj.message=refs.returnMessage.CLIENT_NOT_LOGGED_IN;
-            ret_msg = defs.returnMessage.BAD_CREDENTIALS;
+            retMsg = defs.returnMessage.BAD_CREDENTIALS;
         }
     }
     catch (err){
-        ret_msg = utils.catchErr(err);
+        retMsg = utils.catchErr(err);
     }
     //FUNCTION MUST ALWAYS GET HERE, SINCE IT'S NOT ASYNC
-    return ret_msg;
+    return retMsg;
 }
 
 /**
@@ -142,21 +142,10 @@ function login(clientInfo, cb){
 
 /**
  * Logs out clients, calling 'authenticateClient' function
- * @param clientInfo - username and password
+ * @param email
  */
-function logout(clientInfo) {
-    var retMsg = authenticateClient(clientInfo);
-
-    if (retMsg == defs.returnMessage.SUCCESS) {
-        console.log('Client %s <%s> logged out successfully', clientInfo.address, clientInfo.email);
-        delete onlineTable[clientInfo.email];
-    }
-    else {
-        console.log('Client %s <%s> failed to logged out: %s', clientInfo.address, clientInfo.email, retMsg.message);
-    }
-
-    return retMsg;
-
+function logout(email) {
+    delete onlineTable[email];
 }
 
 /**

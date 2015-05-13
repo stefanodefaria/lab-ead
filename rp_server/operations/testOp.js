@@ -9,14 +9,16 @@ var resData = {message: ''};
 
 function execute(clientInfo, cb) {
     var retObj = {};
-    retObj.message = session.authenticateClient(clientInfo);
+    var authMsg = session.authenticateClient(clientInfo);
 
-    if (retObj.message == defs.returnMessage.SUCCESS) {
+    if (authMsg == defs.returnMessage.SUCCESS) {
+        retObj.message = defs.returnMessage.SUCCESS;
         console.log('Client %s <%s> performed operation successfully', clientInfo.address, clientInfo.email);
         //todo
         //make operation here
     }
     else {
+        retObj.message = authMsg;
         console.log('Client %s <%s> failed to perform operation: %s', clientInfo.address, clientInfo.email, retObj.message);
     }
 

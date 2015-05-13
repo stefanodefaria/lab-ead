@@ -4,4 +4,4 @@
 {"_id":"student3@test.com","password":"12345","name":"Student One","type":"student"}
 {"_id":"student4@test.com","password":"12345","name":"Student 4","type":"student"}
 {"_id":"student9@test.com","password":"12345","name":"Student 4","type":"student"}
-{"_id":"teacher@test.com","password":"12345","type":"teacher"}
+{"password":"teacher123@test.com","_id":"teacher@test.com"}

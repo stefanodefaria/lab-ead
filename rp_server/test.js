@@ -25,10 +25,7 @@ function verify(operation, data){
 }
 
 
-var x = [];
-x["a"] = 'apple';
-x['b'] = 'banana';
 
-console.log(x);
-delete x['b'];
-console.log(x)
+x.contains = function(obj){
+    return x[obj] ? true : false;
+};

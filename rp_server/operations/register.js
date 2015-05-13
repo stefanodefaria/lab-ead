@@ -9,15 +9,16 @@ var reqData = ['email', 'password', 'name'];
 var resData = {message: ''};
 
 function execute(clientInfo, cb) {
-    database.registerUser(clientInfo, defs.profileType.STUDENT, function (retObj) {
+    var retObj = {};
+    database.registerUser(clientInfo, defs.profileType.STUDENT, function (retMsg) {
 
-        if (retObj.message == defs.returnMessage.SUCCESS) {
+        if (retMsg == defs.returnMessage.SUCCESS) {
             console.log('Client %s <%s> registered successfully', clientInfo.address, clientInfo.email);
         }
         else {
             console.log('Client %s <%s> failed to register: %s', clientInfo.address, clientInfo.email, retObj.message);
         }
-
+        retObj.message = retMsg;
         cb(retObj);
     })
 }

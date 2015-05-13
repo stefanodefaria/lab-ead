@@ -16,7 +16,7 @@ const returnMessage = {
 const profileType = {
     STUDENT: 'student',
     TEACHER: 'teacher',
-    ADMIN: 'admin'
+    ADMIN: 'admin'      //not in use
 };
 
 module.exports.returnMessage = returnMessage;
