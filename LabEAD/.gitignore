@@ -1,8 +1,7 @@
 /app/proguard-rules.pro
 /gradle.properties
 /local.properties
-/.idea/workspace.xml
-/.idea/libraries
+/.idea
 /build
 /gradle/
 /.DS_Store
