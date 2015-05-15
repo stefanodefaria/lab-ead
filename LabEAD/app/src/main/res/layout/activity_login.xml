@@ -8,6 +8,13 @@
     tools:context="com.example.stefano.labead.ActivityLogin">
 
     <!-- Login progress -->
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/imageView"
+        android:src="@drawable/icon"
+        android:nestedScrollingEnabled="true" />
+
     <ProgressBar android:id="@+id/login_progress" style="?android:attr/progressBarStyleLarge"
         android:layout_width="wrap_content" android:layout_height="wrap_content"
         android:layout_marginBottom="8dp" android:visibility="gone" />
@@ -23,17 +30,39 @@
                 android:inputType="textEmailAddress" android:maxLines="1"
                 android:singleLine="true" />
 
+            <AutoCompleteTextView android:id="@+id/name" android:layout_width="match_parent"
+                android:layout_height="wrap_content" android:hint="@string/prompt_name"
+                android:inputType="textEmailAddress" android:maxLines="1"
+                android:singleLine="true"
+                android:visibility="gone" />
+
             <EditText android:id="@+id/password" android:layout_width="match_parent"
                 android:layout_height="wrap_content" android:hint="@string/prompt_password"
-                android:imeActionId="@+id/login"
                 android:imeActionLabel="@string/action_sign_in_short"
                 android:imeOptions="actionUnspecified" android:inputType="textPassword"
                 android:maxLines="1" android:singleLine="true" />
 
+            <EditText android:id="@+id/passwordConfirmation" android:layout_width="match_parent"
+                android:layout_height="wrap_content" android:hint="@string/prompt_password_confirmation"
+                android:imeActionLabel="@string/action_sign_in_short"
+                android:imeOptions="actionUnspecified" android:inputType="textPassword"
+                android:maxLines="1" android:singleLine="true"
+                android:visibility="gone" />
+
+
             <Button android:id="@+id/email_sign_in_button" style="?android:textAppearanceSmall"
                 android:layout_width="match_parent" android:layout_height="wrap_content"
-                android:layout_marginTop="16dp" android:text="@string/action_sign_in"
+                android:text="@string/action_sign_in"
                 android:textStyle="bold" />
+
+            <CheckBox
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/checkbox_register"
+                android:layout_gravity="end"
+                android:id="@+id/checkBox"
+                android:checked="false" />
+
 
         </LinearLayout>
     </ScrollView>
