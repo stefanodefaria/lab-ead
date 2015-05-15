@@ -25,6 +25,7 @@ public class Controller {
     public static ActivityExpGravidade getTelaGravidade() {
         return telaGravidade;
     }
+
     public static void setTelaGravidade(ActivityExpGravidade telaGravidade) { Controller.telaGravidade = telaGravidade;}
     public static void setTelaLogin(ActivityLogin telaLogin) {
         Controller.telaLogin = telaLogin;
@@ -69,6 +70,7 @@ public class Controller {
             case Definitions.SUCCESS:
                 token = loginOp.getToken();
                 timeOutDate = (int)(System.currentTimeMillis()/1000) + loginOp.getTimeoutLimit();
+                Toast.makeText(telaGravidade, token, Toast.LENGTH_SHORT).show();
                 break;
         }
     }

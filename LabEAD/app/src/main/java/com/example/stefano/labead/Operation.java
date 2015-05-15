@@ -23,9 +23,6 @@ public abstract class Operation {
         this.responseMessage = null;
     }
 
-
-
-
     public abstract void setResponse(String response) throws JSONException;
 
     public String getName() { return path.replace("/", ""); } // remove a barra
