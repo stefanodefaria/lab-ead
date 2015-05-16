@@ -12,7 +12,7 @@ public class ActivityExpList extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_exp_list);
     }
 
 
@@ -32,7 +32,7 @@ public class ActivityExpList extends AppCompatActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
-            Intent intent = new Intent(this, ActivityExpGravidade.class);
+            Intent intent = new Intent(this, ActivityExpForm.class);
             this.startActivity(intent);
             return true;
         }

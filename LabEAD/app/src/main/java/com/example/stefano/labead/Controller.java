@@ -1,12 +1,12 @@
 package com.example.stefano.labead;
 
 import android.content.Context;
+import android.content.Intent;
 import android.widget.Toast;
 
 import org.json.JSONException;
 
 import java.util.ArrayList;
-import java.util.Date;
 
 
 /**
@@ -15,18 +15,18 @@ import java.util.Date;
 
 public class Controller {
 
-    private static ActivityExpGravidade telaGravidade;
+    private static ActivityExpForm telaGravidade;
     private static ActivityLogin telaLogin;
     private static ActivityExpList telaLista;
 
     private static int timeOutDate;
     private static String token;
 
-    public static ActivityExpGravidade getTelaGravidade() {
+    public static ActivityExpForm getTelaGravidade() {
         return telaGravidade;
     }
 
-    public static void setTelaGravidade(ActivityExpGravidade telaGravidade) { Controller.telaGravidade = telaGravidade;}
+    public static void setTelaGravidade(ActivityExpForm telaGravidade) { Controller.telaGravidade = telaGravidade;}
     public static void setTelaLogin(ActivityLogin telaLogin) {
         Controller.telaLogin = telaLogin;
     }
@@ -35,9 +35,21 @@ public class Controller {
     }
 
 
-    public static void iniciarOperacaoRede(Context context){
+    public static void iniciarOperacaoRede(Context context, String email, String password){
         try{
-            new HttpsOperation(context, new OperationLogin("student1@test.com", "12345"));
+//            new HttpsOperation(context, new OperationLogin("student1@test.com", "12345"));
+
+//            if(email.equals("student1@test.com") && password.equals("12345"))
+//                Toast.makeText(context,"Era pra dar certo...", Toast.LENGTH_SHORT).show();
+//            else
+//
+//                Toast.makeText(context,"Alguma cosia tá errada", Toast.LENGTH_SHORT).show();
+//            //Toast.makeText(context, email + " - " +  password, Toast.LENGTH_SHORT).show();
+            new HttpsOperation(context, new OperationLogin(email, password));
+        }
+        catch(JSONException e){
+
+            Toast.makeText(context, "Não criou json", Toast.LENGTH_SHORT).show();
         }
         catch (Exception e){
             Toast.makeText(context, "dEU MERDA", Toast.LENGTH_SHORT).show();
@@ -53,14 +65,13 @@ public class Controller {
                     break;
                 default:
                     Toast.makeText(telaGravidade, "Operação nao implementada", Toast.LENGTH_SHORT).show();
-
             }
         }
         else {
             String erros = "";
             for(String s: error) erros +=" " + s;
 
-            Toast.makeText(telaGravidade, erros, Toast.LENGTH_SHORT).show();
+            Toast.makeText(telaLogin, erros, Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -70,10 +81,10 @@ public class Controller {
             case Definitions.SUCCESS:
                 token = loginOp.getToken();
                 timeOutDate = (int)(System.currentTimeMillis()/1000) + loginOp.getTimeoutLimit();
-                Toast.makeText(telaGravidade, token, Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(telaLogin, ActivityExpList.class);
+                telaLogin.startActivity(intent);
+                telaLogin.showProgress(false);
                 break;
         }
     }
-
-
 }

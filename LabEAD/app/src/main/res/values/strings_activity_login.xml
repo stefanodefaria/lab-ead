@@ -2,6 +2,7 @@
     <string name="title_activity_login">Entrar</string>
 
     <!-- Strings related to loginRequest -->
+    <string name="logo">Lab EAD logo</string>
     <string name="prompt_email">Email</string>
     <string name="prompt_name">Nome completo</string>
     <string name="prompt_password">Senha</string>
@@ -11,8 +12,8 @@
     <string name="action_register">Registrar</string>
     <string name="checkbox_register">Registrar</string>
 
-    <string name="error_invalid_email">This email address is invalid</string>
-    <string name="error_invalid_password">This password is too short</string>
-    <string name="error_incorrect_password">This password is incorrect</string>
-    <string name="error_field_required">This field is required</string>
+    <string name="error_invalid_email">Email inválido</string>
+    <string name="error_incorrect_password">Senha incorreta</string>
+    <string name="error_incorrect_password_confirmation">Senhas não são iguais</string>
+    <string name="error_field_required">Campo obrigatório</string>
 </resources>
