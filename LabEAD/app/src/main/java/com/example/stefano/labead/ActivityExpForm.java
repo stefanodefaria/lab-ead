@@ -22,7 +22,7 @@ public class ActivityExpForm extends AppCompatActivity {
         actionBar.setDisplayShowHomeEnabled(true);
         actionBar.setDisplayHomeAsUpEnabled(true);
 
-        Controller.setTelaGravidade(this);
+        Controller.setmTelaGravidade(this);
     }
 
     @Override
@@ -47,7 +47,7 @@ public class ActivityExpForm extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
     public void onClick(View v){
-//        Controller.iniciarOperacaoRede(this);
+//        Controller.iniciarOperacaoLogin(this);
     }
 
 }

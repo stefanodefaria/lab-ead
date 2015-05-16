@@ -47,7 +47,7 @@
 
             <Button android:id="@+id/sign_in_register_button" style="?android:textAppearanceSmall"
                 android:layout_width="match_parent" android:layout_height="wrap_content"
-                android:text="@string/action_sign_in"
+                android:text="@string/action_login"
                 android:textStyle="bold" />
 
             <CheckBox

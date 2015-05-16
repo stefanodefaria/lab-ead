@@ -33,7 +33,7 @@ public class ActivityLogin extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        Controller.setTelaLogin(this);
+        Controller.setmTelaLogin(this);
 
         // Set up the loginRequest form.
         mEmailView = (EditText) findViewById(R.id.email);
@@ -69,6 +69,13 @@ public class ActivityLogin extends Activity {
         });
     }
 
+    @Override
+    protected void onResume(){
+        super.onResume();
+        showProgress(false);
+    }
+
+
     private void onChangedRegisterCheckBox(boolean checked){
         if(checked){
             mNameView.setVisibility(View.VISIBLE);
@@ -84,7 +91,7 @@ public class ActivityLogin extends Activity {
         else{
             mNameView.setVisibility(View.GONE);
             mPasswordConfirmationView.setVisibility(View.GONE);
-            mSignInRegisterButton.setText(getString(R.string.action_sign_in));
+            mSignInRegisterButton.setText(getString(R.string.action_login));
 
             mEmailView.setNextFocusDownId(R.id.password);
             mPasswordView.setNextFocusDownId(R.id.sign_in_register_button);
@@ -101,7 +108,7 @@ public class ActivityLogin extends Activity {
 
         String email = mEmailView.getText().toString();
         String password = mPasswordView.getText().toString();
-        Controller.iniciarOperacaoRede(this, email, password);
+        Controller.iniciarOperacaoLogin(this, email, password);
     }
 
     public void attemptRegister(){

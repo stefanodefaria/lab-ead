@@ -13,6 +13,7 @@ public class ActivityExpList extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_exp_list);
+        Controller.setmTelaLista(this);
     }
 
 
@@ -32,8 +33,8 @@ public class ActivityExpList extends AppCompatActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
-            Intent intent = new Intent(this, ActivityExpForm.class);
-            this.startActivity(intent);
+            Controller.iniciarOperacaoLogout(this);
+
             return true;
         }
 
