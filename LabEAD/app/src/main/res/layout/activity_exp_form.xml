@@ -1,4 +1,6 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.example.stefano.labead.activities.ActivityExpForm"
     android:layout_width="match_parent" android:layout_height="match_parent">
     <ScrollView
         android:layout_width="match_parent" android:layout_height="match_parent"
@@ -13,7 +15,7 @@
 
             <VideoView
                 android:layout_width="match_parent"
-                android:layout_height="250dp"
+                android:layout_height="230dp"
                 android:id="@+id/videoView"
                 android:layout_marginBottom="20dp"/>
 
@@ -23,7 +25,7 @@
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceLarge"
                 android:textStyle="bold"
-                android:text="Folha de dados:"  />
+                android:text="@string/folha_de_dados"  />
 
             <LinearLayout android:layout_width="match_parent" android:layout_marginStart="10dp"
                 android:layout_marginLeft="10dp" android:layout_height="wrap_content"
@@ -59,7 +61,7 @@
             <Button
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:text="Enviar"
+                android:text="@string/send_button"
                 android:id="@+id/button"
                 android:onClick="onClick"/>
 

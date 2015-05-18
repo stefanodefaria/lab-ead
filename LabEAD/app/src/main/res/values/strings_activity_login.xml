@@ -1,5 +1,5 @@
 <resources>
-    <string name="title_activity_login">Entrar</string>
+    <string name="title_activity_login">Lab EAD</string>
 
     <!-- Strings related to loginRequest -->
     <string name="logo">Lab EAD logo</string>

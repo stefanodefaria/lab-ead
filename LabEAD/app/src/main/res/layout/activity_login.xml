@@ -6,7 +6,7 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     android:id="@+id/login"
-    tools:context="com.example.stefano.labead.ActivityLogin">
+    tools:context="com.example.stefano.labead.activities.ActivityLogin">
 
     <!-- Login progress -->
     <ProgressBar android:id="@+id/login_progress" style="?android:attr/progressBarStyleLarge"
@@ -21,14 +21,15 @@
 
             <ImageView
                 android:layout_width="wrap_content" android:layout_height="wrap_content"
-                android:id="@+id/imageView" android:src="@drawable/icon"
+                android:id="@+id/imageView" android:src="@drawable/logo"
                 android:layout_gravity="center" android:layout_marginBottom="10dp"
                 android:contentDescription="@string/logo" />
 
             <EditText android:id="@+id/email" android:layout_width="match_parent"
                 android:layout_height="wrap_content" android:hint="@string/prompt_email"
                 android:inputType="textEmailAddress" android:maxLines="1"
-                android:singleLine="true"/>
+                android:singleLine="true"
+                android:editable="false" />
 
             <EditText android:id="@+id/name" android:layout_width="match_parent"
                 android:layout_height="wrap_content" android:hint="@string/prompt_name"

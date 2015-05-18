@@ -10,7 +10,8 @@ const opsList = [
     'register',
     'updateInfo',
     'testOp',
-    'logout'
+    'logout',
+    'getExpList'
 ];
 
 //fields: {execute: function, reqData: array of keys, resData: empty retObj}

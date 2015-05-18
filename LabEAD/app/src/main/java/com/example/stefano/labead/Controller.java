@@ -4,30 +4,38 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.widget.Toast;
 
-import com.example.stefano.labead.Operations.Operation;
-import com.example.stefano.labead.Operations.OperationLogin;
-import com.example.stefano.labead.Operations.OperationLogout;
+import com.example.stefano.labead.activities.ActivityExpForm;
+import com.example.stefano.labead.activities.ActivityExpList;
+import com.example.stefano.labead.activities.ActivityLogin;
+import com.example.stefano.labead.operations.Operation;
+import com.example.stefano.labead.operations.OperationGetExpList;
+import com.example.stefano.labead.operations.OperationLogin;
+import com.example.stefano.labead.operations.OperationLogout;
 
 import org.json.JSONException;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.ArrayList;
 
 public class Controller {
 
-    private static ActivityExpForm mTelaGravidade;
+    private static ActivityExpForm mTelaExpForm;
     private static ActivityLogin mTelaLogin;
     private static ActivityExpList mTelaLista;
     private static Activity mTelaEmUso;
 
     private static int mTimeOutDate;
+    private static int mtimeOutLimit;
     private static String mToken;
     private static String mEmail;
+    private static ArrayList<String> mExpNamesList;
+    private static ArrayList<String> mExpIDsList;
 
-    public static void setmTelaGravidade(ActivityExpForm mTelaGravidade) {
-        Controller.mTelaGravidade = mTelaGravidade;
-        mTelaEmUso = mTelaGravidade;
+    public static void setmTelaExpForm(ActivityExpForm mTelaExpForm) {
+        Controller.mTelaExpForm = mTelaExpForm;
+        mTelaEmUso = mTelaExpForm;
     }
     public static void setmTelaLogin(ActivityLogin mTelaLogin) {
         Controller.mTelaLogin = mTelaLogin;
@@ -39,33 +47,7 @@ public class Controller {
     }
 
 
-    public static void iniciarOperacaoLogin(Activity sender, String email, String password){
-        try{
-            new HttpsOperation(new OperationLogin(email, password, sender));
-        }
-        catch(JSONException e){
-
-            showErrorMessage("Não criou JSON\nemail:" + email + "\npassword:");
-        }
-        catch (Exception e){
-            showErrorMessage(e.getStackTrace().toString());
-        }
-    }
-
-    public static void iniciarOperacaoLogout(Activity sender){
-        try{
-            new HttpsOperation(new OperationLogout(mEmail, mToken, sender));
-        }
-        catch(JSONException e){
-
-            Toast.makeText(mTelaEmUso, "Não criou json", Toast.LENGTH_SHORT).show();
-        }
-        catch (Exception e){
-            Toast.makeText(mTelaEmUso, "dEU MERDA", Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    public static void receberJson(ArrayList<String> error, Operation operation){
+    public static void receberResposta(ArrayList<String> error, Operation operation){
         if(error.size()==0) {
 
             switch (operation.getName()){
@@ -75,7 +57,9 @@ public class Controller {
                 case "logout":
                     handleLogoutResponse((OperationLogout) operation);
                     break;
-
+                case "getExpList":
+                    handleGetExpListResponse((OperationGetExpList)operation);
+                    break;
                 default:
                     showErrorMessage("Operação <" + operation.getName() + "> nao implementada");
             }
@@ -88,22 +72,53 @@ public class Controller {
         }
     }
 
-    private static void handleLogoutResponse(OperationLogout logoutOp){
-        String responseMsg = logoutOp.getResponseMessage();
-        switch (responseMsg) {
-            case Definitions.SUCCESS:
-                mToken = null;
-                mTimeOutDate = -1;
-                mEmail = null;
-                Intent intent = new Intent(logoutOp.getTelaExpedidora(), ActivityLogin.class);
-                logoutOp.getTelaExpedidora().startActivity(intent);
-                break;
-            case Definitions.BAD_CREDENTIALS:
-                showErrorMessage(mTelaLogin.getString(R.string.error_bad_credentials));
-                break;
-            default:
-                showErrorMessage(responseMsg);
+    public static void iniciarOperacaoLogin(Activity sender, String email, String password){
+        try{
+            new HttpsOperation(new OperationLogin(email, password, sender)).start();
         }
+        catch(JSONException e){
+
+            showErrorMessage("Não criou JSON");
+        }
+        catch (Exception e){
+            StringWriter sw = new StringWriter();
+            e.printStackTrace(new PrintWriter(sw));
+
+            showErrorMessage(sw.toString());
+        }
+    }
+
+    public static void iniciarOperacaoLogout(Activity sender){
+        try{
+            new HttpsOperation(new OperationLogout(mEmail, mToken, sender)).start();
+        }
+        catch(JSONException e){
+
+            showErrorMessage("Não criou json");
+        }
+        catch (Exception e){
+            StringWriter sw = new StringWriter();
+            e.printStackTrace(new PrintWriter(sw));
+
+            showErrorMessage(sw.toString());
+        }
+    }
+
+    public static void iniciarOperacaoGetExpList(Activity sender){
+        try{
+            new HttpsOperation(new OperationGetExpList(mEmail, mToken, sender)).start();
+        }
+        catch(JSONException e){
+
+            showErrorMessage("Não criou json");
+        }
+        catch (Exception e){
+            StringWriter sw = new StringWriter();
+            e.printStackTrace(new PrintWriter(sw));
+
+            showErrorMessage(sw.toString());
+        }
+
     }
 
     private static void handleLoginResponse(OperationLogin loginOp){
@@ -112,24 +127,61 @@ public class Controller {
             case Definitions.SUCCESS:
                 mToken = loginOp.getToken();
                 mEmail = loginOp.getReqEmail();
-                mTimeOutDate = (int)(System.currentTimeMillis()/1000) + loginOp.getTimeoutLimit();
+                mtimeOutLimit = loginOp.getTimeoutLimit();
+                mTimeOutDate = (int)(System.currentTimeMillis()/1000) + mtimeOutLimit;
                 Intent intent = new Intent(loginOp.getTelaExpedidora(), ActivityExpList.class);
-                mTelaLogin.startActivity(intent);
+                loginOp.getTelaExpedidora().startActivity(intent);
                 break;
             case Definitions.BAD_CREDENTIALS:
                 mTelaLogin.showProgress(false);
-                showErrorMessage(mTelaLogin.getString(R.string.error_bad_credentials));
+                showErrorMessage(mTelaEmUso.getString(R.string.error_bad_credentials));
                 break;
             default:
                 showErrorMessage(responseMsg);
-//            case Definitions.BAD_DATA:
-//                String email = loginOp.getReqEmail();
-//                String password = loginOp.getReqPassword();
-//                break;
-//            case Definitions.MISSING_DATA:
-//                break;
-//            case Definitions.SERVER_ERROR:
-//                break;
+        }
+    }
+
+    private static void handleLogoutResponse(OperationLogout logoutOp){
+        String responseMsg = logoutOp.getResponseMessage();
+        switch (responseMsg) {
+            case Definitions.SUCCESS:
+                mToken = null;
+                mTimeOutDate = -1;
+                mEmail = null;
+                Intent intent = new Intent(logoutOp.getTelaExpedidora(), ActivityLogin.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                logoutOp.getTelaExpedidora().startActivity(intent);
+                mTelaEmUso.finish();
+                break;
+            case Definitions.BAD_CREDENTIALS:
+                showErrorMessage(mTelaEmUso.getString(R.string.error_bad_credentials));
+                break;
+            default:
+                showErrorMessage(responseMsg);
+        }
+    }
+
+    private static void handleGetExpListResponse(OperationGetExpList getExpListOp){
+        String responseMsg = getExpListOp.getResponseMessage();
+        switch (responseMsg) {
+            case Definitions.SUCCESS:
+                mTimeOutDate = (int)(System.currentTimeMillis()/1000) + mtimeOutLimit;
+                mExpNamesList = getExpListOp.getExpNames();
+                mExpIDsList = getExpListOp.getExpIDs();
+
+                if(mTelaLista== null){
+                    Intent intent = new Intent(getExpListOp.getTelaExpedidora(), getExpListOp.getTelaExpedidora().getClass());
+                    getExpListOp.getTelaExpedidora().startActivity(intent);
+                }
+
+                mTelaLista.setExpList(mExpNamesList, mExpIDsList);
+
+                break;
+            case Definitions.BAD_CREDENTIALS:
+                showErrorMessage(mTelaEmUso.getString(R.string.error_bad_credentials));
+                break;
+            default:
+                showErrorMessage(responseMsg);
         }
     }
 

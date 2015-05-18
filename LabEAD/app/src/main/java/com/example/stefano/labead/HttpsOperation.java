@@ -5,7 +5,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 
-import com.example.stefano.labead.Operations.Operation;
+import com.example.stefano.labead.operations.Operation;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -35,6 +35,9 @@ public class HttpsOperation extends AsyncTask <Void, Void, Void>{
     public HttpsOperation(Operation operation) {
         this.context = operation.getTelaExpedidora();
         this.operation = operation;
+    }
+
+    public void start(){
         executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, null, null, null);
     }
 
@@ -98,7 +101,7 @@ public class HttpsOperation extends AsyncTask <Void, Void, Void>{
     protected void onPostExecute(Void result) {
         super.onPostExecute(result);
 
-        Controller.receberJson(error, operation);
+        Controller.receberResposta(error, operation);
     }
 
 }
