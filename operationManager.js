@@ -2,9 +2,8 @@
  * Created by stefano on 27/04/15.
  */
 
-// TODO
-// generate opsList dynamically
-const opsList = [
+
+const opsIndex = [
     'login',
     'logout',
     'register',
@@ -21,15 +20,18 @@ initialize();
 
 function initialize() {
 
-    for (var i = 0; i < opsList.length; i++) {
-        var key = opsList[i];
+    for (var i = 0; i < opsIndex.length; i++) {
+        var key = opsIndex[i];
         var mdl = require('./operations/' + key);
         operations[key] = {execute: mdl.execute, reqData: mdl.reqData, resData: mdl.resData};
     }
 }
 
 function processRequest(path, clientInfo, cb) {
-    operations[path].execute(clientInfo, cb);
+
+    process.nextTick(function(){
+        operations[path].execute(clientInfo, cb);
+    });
 }
 
 

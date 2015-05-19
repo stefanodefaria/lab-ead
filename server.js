@@ -31,18 +31,8 @@ http.createServer(function (req, res) {
         if(validation.message != defs.returnMessage.SUCCESS)
         {
             console.log("Invalid request from %s: %s.", utils.clientAddress(req), validation.message);
-            //if(validation.message == defs.returnMessage.BAD_OPERATION){
-            //    //since retObj was 'undefined', create a new one
-            //    retObj = {message: validation.message};
-            //}
-            //else {
-            //
-            //    //will return 'undefined' in case of bad_operation
-            //    //var
-            //    retObj = {message: validation.message};
-            //}
 
-            retObj = {message: validation.message};
+            var retObj = {message: validation.message};
             res.end(JSON.stringify(retObj));
             return;
         }

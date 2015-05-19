@@ -5,8 +5,8 @@ var session = require('./../sessionManager');
 var defs = require('./../definitions');
 var exp = require('./../experimentManager');
 
-var reqData = ['email', 'token'];
-var resData = {message: '', experiencesIDs:[], experiencesNames:[]};
+var reqData = ['email', 'token', 'expKey'];
+var resData = {message: '', completeExpInfo:{}};
 
 function execute(clientInfo, cb) {
     var retObj = {};
@@ -14,14 +14,12 @@ function execute(clientInfo, cb) {
 
     if (authMsg == defs.returnMessage.SUCCESS) {
         retObj.message = defs.returnMessage.SUCCESS;
-        console.log('Client %s <%s> performed getExpList successfully', clientInfo.address, clientInfo.email);
-        var expList = exp.getExpList();
-	    retObj.experiencesIDs = expList[0];
-        retObj.experiencesNames = expList[1];
+        console.log('Client %s <%s> performed getExpInfo successfully', clientInfo.address, clientInfo.email);
+        retObj.completeExpInfo = exp.getCompleteExpInfo(clientInfo.expKey);
     }
     else {
         retObj.message = authMsg;
-        console.log('Client %s <%s> failed to perform getExpList: %s', clientInfo.address, clientInfo.email, retObj.message);
+        console.log('Client %s <%s> failed to perform getExpInfo: %s', clientInfo.address, clientInfo.email, retObj.message);
     }
 
     cb(retObj);
