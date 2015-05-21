@@ -10,7 +10,8 @@ const opsIndex = [
     'updateInfo',
     'testOp',
     'logout',
-    'getExpList'
+    'getExpList',
+    'getExpInfo'
 ];
 
 //fields: {execute: function, reqData: array of keys, resData: empty retObj}

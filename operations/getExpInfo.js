@@ -15,7 +15,10 @@ function execute(clientInfo, cb) {
     if (authMsg == defs.returnMessage.SUCCESS) {
         retObj.message = defs.returnMessage.SUCCESS;
         console.log('Client %s <%s> performed getExpInfo successfully', clientInfo.address, clientInfo.email);
-        retObj.completeExpInfo = exp.getCompleteExpInfo(clientInfo.expKey);
+        var completeExpInfo = exp.getCompleteExpInfo(clientInfo.expKey);
+        retObj.expName = completeExpInfo.expName;
+        retObj.expInfo = completeExpInfo.expInfo;
+        retObj.expReportInfo = completeExpInfo.expReportInfo;
     }
     else {
         retObj.message = authMsg;

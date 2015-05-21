@@ -1,3 +1,4 @@
+{"_id":"a@a","password":"a","name":"a","type":"student"}
 {"_id":"admin@test.com","password":"12345","type":"admin"}
 {"_id":"student1@test.com","password":"12345","type":"student"}
 {"_id":"student2@test.com","password":"12345","type":"student"}

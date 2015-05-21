@@ -28,8 +28,11 @@ function startExperiment(key, cb) {
 }
 
 function getCompleteExpInfo(key){
-    return {expName: experiments[key].expName, expInfo: experiments[key].expInfo,
-        expReportInfo: experiments[key].expReportInfo};
+    return {
+        expName: experiments[key].expName,
+        expInfo: experiments[key].expInfo,
+        expReportInfo: experiments[key].expReportInfo
+    };
 }
 
 function getExpList(){

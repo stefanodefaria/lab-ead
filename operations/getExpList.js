@@ -6,7 +6,7 @@ var defs = require('./../definitions');
 var exp = require('./../experimentManager');
 
 var reqData = ['email', 'token'];
-var resData = {message: '', experiencesIDs:[], experiencesNames:[]};
+var resData = {message: '', experiencesKeys:[], experiencesNames:[]};
 
 function execute(clientInfo, cb) {
     var retObj = {};
@@ -16,7 +16,7 @@ function execute(clientInfo, cb) {
         retObj.message = defs.returnMessage.SUCCESS;
         console.log('Client %s <%s> performed getExpList successfully', clientInfo.address, clientInfo.email);
         var expList = exp.getExpList();
-	    retObj.experiencesIDs = expList[0];
+	    retObj.experiencesKeys = expList[0];
         retObj.experiencesNames = expList[1];
     }
     else {

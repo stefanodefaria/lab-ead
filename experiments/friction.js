@@ -1,9 +1,6 @@
 var expName = "Cálculo do Atrito";
-var expReportInfo = {
-    fieldNames:[],
-    hints:[]
-};
-var expInfo = "";
+var expReportInfo = [];
+var expInfo = "Não implementado";
 
 function execute(){}
 
