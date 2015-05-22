@@ -11,7 +11,7 @@ if __name__ == '__main__':
         print bus.read_byte(address)
 
     elif sys.argv[1] == '-write':
-        bus.write_byte(address, sys.argv[2])
+        bus.write_byte(address, int(sys.argv[2]))
         print '0'
 
     else:
