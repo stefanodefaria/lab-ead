@@ -1,6 +1,7 @@
 /**
  * Created by stefano on 19/05/15.
  */
+var defs = require("./definitions");
 
 const expIndex = [
     "gravity",
@@ -21,10 +22,15 @@ function initialize() {
     }
 }
 
-function startExperiment(key, cb) {
-    process.nextTick(function(){
-        experiments[key].execute(cb);
-    });
+function experimentIsAvailable(key){
+    return (experiments[key]!== undefined);
+}
+
+function startExperiment(key) {
+    if (experimentIsAvailable(key)){
+        return experiments[key].execute();
+    }
+    return defs.returnMessage.BAD_DATA;
 }
 
 function getCompleteExpInfo(key){
@@ -51,3 +57,4 @@ function getExpList(){
 module.exports.startExperiment = startExperiment;
 module.exports.getCompleteExpInfo = getCompleteExpInfo;
 module.exports.getExpList = getExpList;
+module.exports.experimentIsAvailable = experimentIsAvailable;

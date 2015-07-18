@@ -1,3 +1,4 @@
+var defs = require("../definitions");
 var expName = "Verificação da aceleração da gravidade";
 var expInfo = require('fs').readFileSync('./res/gravity.txt', 'utf8').toString();
 var expReportInfo = [
@@ -13,6 +14,7 @@ var expReportInfo = [
 
 function execute(){
     console.log("EXECUTOUUUUUU GRAVIDADEEEE");
+    return defs.returnMessage.SUCCESS;
 }
 
 module.exports.expReportInfo = expReportInfo;
