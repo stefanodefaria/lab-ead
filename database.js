@@ -1,6 +1,7 @@
 /**
- * Created by Stéfano on 04/04/2015.
+ * Created by Stï¿½fano on 04/04/2015.
  */
+var crypto = require('crypto');
 var Datastore = require('nedb');
 var defs = require('./definitions');
 var utils = require('./utils');
@@ -52,6 +53,7 @@ function registerUser(entry, accType, cb){
     var database = this.db;
     var retMsg;
 
+
     database.find({_id: entry.email}, function (err, docs){
         if(err){
             //internal db.find() error
@@ -70,7 +72,8 @@ function registerUser(entry, accType, cb){
         }
         else//if not, registers email
         {
-            var newEntry = {_id: entry.email, password: entry.password, name: entry.name, type: accType};
+            var hashedPassword = crypto.createHash('sha1').update(entry.password).digest('hex');
+            var newEntry = {_id: entry.email, password: hashedPassword, name: entry.name, type: accType};
 
             database.insert(newEntry, function(err, newDoc){
                 if(err){
@@ -96,8 +99,8 @@ function registerUser(entry, accType, cb){
  * @param cb - callback('message')
  */
 function updateUser(email, entry, cb){
-//TODO
-    //VERIFICAR ESSA FUNÇÃO
+    //TODO
+    //VERIFICAR ESSA FUNCAO
     var retMsg;
 
     db.update({ _id: email }, entry, function (err, numUpdated) {

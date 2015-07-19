@@ -1,8 +1,6 @@
-{"_id":"a@a","password":"a","name":"a","type":"student"}
-{"_id":"admin@test.com","password":"12345","type":"admin"}
-{"_id":"student1@test.com","password":"12345","type":"student"}
-{"_id":"student2@test.com","password":"12345","type":"student"}
-{"_id":"student3@test.com","password":"12345","name":"Student One","type":"student"}
-{"_id":"student4@test.com","password":"12345","name":"Student 4","type":"student"}
-{"_id":"student9@test.com","password":"12345","name":"Student 4","type":"student"}
-{"password":"teacher123@test.com","_id":"teacher@test.com"}
+{"_id":"admin@test.com","password":"8cb2237d0679ca88db6464eac60da96345513964","type":"admin"}
+{"_id":"student1@test.com","password":"8cb2237d0679ca88db6464eac60da96345513964","type":"student"}
+{"_id":"student2@test.com","password":"8cb2237d0679ca88db6464eac60da96345513964","type":"student"}
+{"_id":"student3@test.com","password":"8cb2237d0679ca88db6464eac60da96345513964","name":"Student One","type":"student"}
+{"_id":"student4@test.com","password":"8cb2237d0679ca88db6464eac60da96345513964","name":"Student 4","type":"student"}
+{"_id":"student9@test.com","password":"8cb2237d0679ca88db6464eac60da96345513964","name":"Student 4","type":"student"}

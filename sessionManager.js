@@ -1,6 +1,7 @@
 /**
  * Created by St�fano on 03/04/2015.
  */
+var crypto = require('crypto');
 var uuid = require('uuid');
 var utils = require('./utils');
 var defs = require('./definitions');
@@ -71,7 +72,9 @@ function authenticateClient(clientInfo)
  * @param cb
  */
 function validateCredentials(email, password, cb){
-    database.find({_id: email, password: password}, function (err, docs) {
+    var hashedPassword = crypto.createHash('sha1').update(password).digest('hex');
+
+    database.find({_id: email, password: hashedPassword}, function (err, docs) {
         if(err){
             cb(err);
             return;
