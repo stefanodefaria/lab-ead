@@ -60,15 +60,14 @@ function registerUser(entry, accType, cb){
             retMsg = utils.catchErr(err);
 
             //since registration is async, callback must be called now
-            cb(ret_obj);
-            //return;
+            return cb(retMsg);
         }
-        else if (docs.length>0){//if email is already registered
+
+        if (docs.length>0){//if email is already registered
             retMsg = defs.returnMessage.EMAIL_NOT_UNIQUE;
 
             //since registration is async, callback must be called now
-            cb(retMsg);
-            //return;
+            return cb(retMsg);
         }
         else//if not, registers email
         {
@@ -83,11 +82,8 @@ function registerUser(entry, accType, cb){
                 else{
                     retMsg = defs.returnMessage.SUCCESS;
                 }
-                cb(retMsg);
-                //return;
+                return cb(retMsg);
             });
-
-            //cb will be called within database.insert callback
         }
     });
 }
