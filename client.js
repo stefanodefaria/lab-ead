@@ -15,7 +15,7 @@ var globalExpIDsArray;
 var globalExpNamesArray;
 var globalSelectedExpID;
 
-var operations = [login, getExpList, startExp];
+var operations = [login, getExpList, startExp, sendReport];
 
 async.series(operations,  function(){
     console.log("All operations are finished.");
@@ -132,6 +132,36 @@ function startExp(cb){
         console.log(msg);
         globalExpIDsArray = msg.experiencesKeys;
         globalExpNamesArray = msg.experiencesNames;
+        cb();
+    });
+}
+
+function sendReport(cb){
+    var sendReport_options = {
+        host: 'localhost',
+        port: 8080,
+        method: 'POST',
+        path: '/sendReport'
+    };
+    var sendReport_data = JSON.stringify({
+        email: 'student1@test.com',
+        token: globalToken,
+        expID: 'gravity',
+        report: [
+            {fieldName:"Tempo 1", value:"1"},
+            {fieldName:"Distância 1", value:"2"},
+            {fieldName:"Tempo 2", value:"3"},
+            {fieldName:"Distância 2", value:"4"},
+            {fieldName:"Tempo 3", value:"5"},
+            {fieldName:"Distância 3", value:"6"},
+            {fieldName:"Tempo 4", value:"7"},
+            {fieldName:"Distância 4", value:"8"}
+        ]
+    });
+
+    console.log("Sending report...");
+    httpRequest(sendReport_options, sendReport_data, function(msg){
+        console.log(msg);
         cb();
     });
 }

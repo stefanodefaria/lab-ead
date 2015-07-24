@@ -134,7 +134,7 @@ function insertReport(email, expID, report, cb){
     var entry = {$set: {}}; //usado para adicionar um valor a uma entrada já existente
     entry.$set[reportID] = report;
 
-    this.db.update({ _id: email }, entry, function (err, numUpdated) {
+    this.db.update({ _id: email }, entry, {multi: false, upsert: true }, function (err, numUpdated) {
         if(err){
             //internal db.update() error
 

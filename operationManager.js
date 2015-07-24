@@ -12,7 +12,8 @@ const opsIndex = [
     'logout',
     'getExpList',
     'getExpInfo',
-    'startExp'
+    'startExp',
+    'sendReport'
 ];
 
 //fields: {execute: function, reqData: array of keys, resData: empty retObj}
