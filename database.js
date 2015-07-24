@@ -129,31 +129,21 @@ function updateUser(email, entry, cb){
  * @param cb - callback('message')
  */
 function insertReport(email, expID, report, cb){
-
-    var retMsg;
-
     var reportID = "reports." + expID;
 
     var entry = {$set: {}}; //usado para adicionar um valor a uma entrada já existente
     entry.$set[reportID] = report;
 
-    db.update({ _id: email }, entry, function (err, numUpdated) {
+    this.db.update({ _id: email }, entry, function (err, numUpdated) {
         if(err){
             //internal db.update() error
-            retMsg = utils.catchErr(err);
 
-            //since update is async, callback must be called now
-            cb(retMsg);
-            //return;
+            return cb(utils.catchErr(err));
         }
-        else if (numUpdated==1){//if updated ONE entry
-            retMsg = defs.returnMessage.SUCCESS;
-
-            //since registration is async, callback must be called now
-            cb(retMsg);
+        else{
+            return cb(defs.returnMessage.SUCCESS);
         }
     });
-    cb(null, true);
 }
 
 
