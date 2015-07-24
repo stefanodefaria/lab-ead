@@ -121,6 +121,43 @@ function updateUser(email, entry, cb){
     });
 }
 
+/**
+ *  ASYNC - Insert user exp report
+ * @param email - user email: 'example@123.com'
+ * @param expID - exp id: 'gravity'
+ * @param report - exp report: [{fieldName: "tempo", value: "2"}, {fieldName: "massa", value: "0.5"}]
+ * @param cb - callback('message')
+ */
+function insertReport(email, expID, report, cb){
+
+    var retMsg;
+
+    var reportID = "reports." + expID;
+
+    var entry = {$set: {}}; //usado para adicionar um valor a uma entrada já existente
+    entry.$set[reportID] = report;
+
+    db.update({ _id: email }, entry, function (err, numUpdated) {
+        if(err){
+            //internal db.update() error
+            retMsg = utils.catchErr(err);
+
+            //since update is async, callback must be called now
+            cb(retMsg);
+            //return;
+        }
+        else if (numUpdated==1){//if updated ONE entry
+            retMsg = defs.returnMessage.SUCCESS;
+
+            //since registration is async, callback must be called now
+            cb(retMsg);
+        }
+    });
+    cb(null, true);
+}
+
+
+module.exports.insertReport = insertReport;
 module.exports.loadDB = loadDB;
 module.exports.find = find;
 module.exports.registerUser = registerUser;
