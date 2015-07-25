@@ -19,6 +19,7 @@ function execute(clientInfo, cb) {
 
         if (retObj.message === defs.returnMessage.SUCCESS) {
             console.log('Client %s <%s> performed startExp successfully', clientInfo.address, clientInfo.email);
+
         }
         else {
             console.log('Client %s <%s> failed to perform startExp: %s', clientInfo.address, clientInfo.email, retObj.message);
