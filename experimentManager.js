@@ -4,8 +4,8 @@
 var defs = require("./definitions");
 
 const expIndex = [
-    "Gravity",
-    "Friction"
+    "gravity",
+    "friction"
 ];
 
 var experiments = [];
