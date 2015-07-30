@@ -36,15 +36,12 @@ function currentTimeInSeconds()
  */
 function catchErr(err){
     //if error has a defined error type and message
-    if(err.type && err.message){
-        console.error("ERROR - Caught " + err.type + " exception: " + err.message);
-    }
-    else{
-        console.error("ERROR - Caught unknown exception.");
-    }
-    console.log("\n");
-    console.error(err);
-    console.error("------------------------------------");
+    var errType = err.type || err.code || 'unknown';
+
+    console.error("----------------------------------------------");
+    console.error("ERROR - Caught " + errType + " exception");
+    console.error(err.stack);
+    console.error("----------------------------------------------");
     return defs.returnMessage.SERVER_ERROR;
 }
 

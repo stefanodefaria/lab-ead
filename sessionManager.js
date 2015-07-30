@@ -8,7 +8,13 @@ var defs = require('./definitions');
 var database = require('./database');
 
 //Starts DB to be used in this module
-database.loadDB();
+database.loadDB(function(msg){
+    if(msg !== defs.returnMessage.SUCCESS) {
+        console.error("Critical error. Shutting down.");
+        process.exit();
+    }
+    console.log("Database initialized successfully");
+});
 
 //this array keeps track of which users are online.
 //it will store objects like:
@@ -74,17 +80,15 @@ function authenticateClient(clientInfo)
 function validateCredentials(email, password, cb){
     var hashedPassword = crypto.createHash('sha1').update(password).digest('hex');
 
-    database.find({_id: email, password: hashedPassword}, function (err, docs) {
-        if(err){
-            cb(err);
-            return;
+    database.find(email, function (msg, user) {
+        if(msg !== defs.returnMessage.SUCCESS){
+            return cb(msg, false);
         }
-
-        if (docs.length == 1){ //if found 1 match
-            cb(null, true)
+        if (user && user.password === hashedPassword){ //if found 1 match
+            return cb(msg, true);
         }
         else{
-            cb(null, false)
+            return cb(defs.returnMessage.BAD_CREDENTIALS, false);
         }
     });
 }
@@ -97,16 +101,13 @@ function validateCredentials(email, password, cb){
  */
 function login(clientInfo, cb){
     //Define an 'empty' return object
-    var ret_obj = {message:"", token: "", timeout: -1};
+    var ret_obj = {};
 
     try{
         //ASYNC DB validation
-        validateCredentials(clientInfo.email, clientInfo.password, function(err, validated){
-            if(err){
-                //error will be caught (this is inside a try-catch block)
-                throw err;
-            }
-            else if(validated){//if password matches email
+        validateCredentials(clientInfo.email, clientInfo.password, function(msg, validated){
+            ret_obj.message = msg;
+            if(validated){//if password matches email
                 //get current time
                 var currentTime = utils.currentTimeInSeconds();
 
@@ -124,11 +125,6 @@ function login(clientInfo, cb){
                 ret_obj.message = defs.returnMessage.SUCCESS;
                 ret_obj.timeout = connectionTimeOut;
                 ret_obj.token = token;
-            }
-            else{
-                //password does not match email,
-                //or email is not registered
-                ret_obj.message = defs.returnMessage.BAD_CREDENTIALS;
             }
             cb(ret_obj);
             //return;
@@ -164,7 +160,7 @@ function removeTimedOutClientsTask(){
         var currentTime = utils.currentTimeInSeconds();
         var count =0;
         for(var entry in onlineTable){
-            if (onlineTable[entry].lastConnectionTime && (onlineTable[entry].lastConnectionTime + timeMargin < currentTime)) {
+            if (onlineTable.hasOwnProperty(entry) && onlineTable[entry].lastConnectionTime && (onlineTable[entry].lastConnectionTime + timeMargin < currentTime)) {
                 delete onlineTable[entry];
                 count++;
             }

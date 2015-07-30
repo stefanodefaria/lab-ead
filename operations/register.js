@@ -10,7 +10,8 @@ var resData = {message: ''};
 
 function execute(clientInfo, cb) {
     var retObj = {};
-    database.registerUser(clientInfo, defs.profileType.STUDENT, function (retMsg) {
+    var hashedPassword = crypto.createHash('sha1').update(clientInfo.password).digest('hex');
+    database.registerUser(clientInfo.email, hashedPassword, clientInfo.name, defs.profileType.STUDENT, function (retMsg) {
 
         if (retMsg == defs.returnMessage.SUCCESS) {
             console.log('Client %s <%s> registered successfully', clientInfo.address, clientInfo.email);

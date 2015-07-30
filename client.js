@@ -59,7 +59,7 @@ function login(cb){
         path: '/login'
     };
     var login_data = JSON.stringify({
-        email: 'student1@test.com',
+        email: 'test2@test.com',
         password: '12345'
     });
 
@@ -79,7 +79,7 @@ function register(cb){
         path: '/register'
     };
     var register_data = JSON.stringify({
-        email: 'student9@test.com',
+        email: 'test3@test.com',
         password: '12345',
         name: 'Student 4'
     });
@@ -101,7 +101,7 @@ function getExpList(cb){
         path: '/getExpList'
     };
     var getExpList_data = JSON.stringify({
-        email: 'student1@test.com',
+        email: 'test2@test.com',
         token: globalToken
     });
     console.log("Get Experiments List...");
@@ -122,7 +122,7 @@ function startExp(cb){
         path: '/startExp'
     };
     var startExp_data = JSON.stringify({
-        email: 'student1@test.com',
+        email: 'test2@test.com',
         token: globalToken,
         expID: globalSelectedExpID
     });
@@ -144,7 +144,7 @@ function sendReport(cb){
         path: '/sendReport'
     };
     var sendReport_data = JSON.stringify({
-        email: 'student1@test.com',
+        email: 'test2@test.com',
         token: globalToken,
         expID: 'gravity',
         report: [

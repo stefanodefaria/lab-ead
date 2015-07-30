@@ -1,2 +1,3 @@
-var crypto = require('crypto');
-console.log(crypto.createHash('sha1').update("12345").digest('hex'));
+var utils = require('./utils');
+
+utils.catchErr(new Error("blablabla"));

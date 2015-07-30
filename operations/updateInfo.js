@@ -5,6 +5,7 @@
 var session = require('./../sessionManager');
 var defs = require('./../definitions');
 var db = require('./../database');
+var crypto = require('crypto');
 
 var reqData = ['email', 'token', 'newEmail', 'newPassword', 'newName'];
 var resData = {message: ''};
@@ -12,21 +13,23 @@ var resData = {message: ''};
 function execute(clientInfo, cb) {
     var retObj = {};
     var authMsg = session.authenticateClient(clientInfo);
-    var updtEntry = {};
+    var newEmail, newHashedPassword, newName;
 
     if(clientInfo.containsProp('newEmail')){
-        updtEntry['newEmail'] = clientInfo.newEmail;
+        //TODO
+        // decidir se vamos trocar email. acho melhor não
+        newEmail = clientInfo.newEmail;
     }
     if(clientInfo.containsProp('newPassword')){
-        updtEntry['newPassword'] = clientInfo.newPassword;
+        newHashedPassword = crypto.createHash('sha1').update(clientInfo.newPassword).digest('hex');
     }
     if(clientInfo.containsProp('newEmail')){
-        updtEntry['newName'] = clientInfo.newName;
+        newName = clientInfo.newName;
     }
 
     if (authMsg == defs.returnMessage.SUCCESS) {
         console.log('Client %s <%s> updated its info successfully', clientInfo.address, clientInfo.email);
-        db.updateUser(clientInfo.email, updtEntry, function(retMsg){
+        db.updateUser(clientInfo.email, newHashedPassword, newName, defs.profileType.STUDENT, function(retMsg){
 
             if (retMsg == defs.returnMessage.SUCCESS) {
                 console.log('Client %s <%s> updated info successfully', clientInfo.address, clientInfo.email);
@@ -39,6 +42,7 @@ function execute(clientInfo, cb) {
         })
     }
     else {
+        retObj.message = authMsg;
         console.log('Client %s <%s> failed to update info: %s', clientInfo.address, clientInfo.email, retObj.message);
     }
 
