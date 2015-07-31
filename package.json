@@ -14,7 +14,7 @@
   "author": "stefanodefaria@gmail.com",
   "license": "ISC",
   "dependencies": {
-    "nedb": "^1.1.2",
+    "sqlite3": "^3.0.9",
     "uuid": "^2.0.1"
   }
 }
