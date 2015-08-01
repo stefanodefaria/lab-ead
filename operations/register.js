@@ -4,6 +4,7 @@
 
 var database = require('./../database');
 var defs = require('./../definitions');
+var crypto = require('crypto');
 
 var reqData = ['email', 'password', 'name'];
 var resData = {message: ''};
