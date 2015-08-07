@@ -15,7 +15,7 @@ var globalExpIDsArray;
 var globalExpNamesArray;
 var globalSelectedExpID;
 
-var operations = [login, getExpList, startExp, sendReport];
+var operations = [register, login, getExpList, startExp, sendReport];
 
 async.series(operations,  function(){
     console.log("All operations are finished.");
@@ -59,7 +59,7 @@ function login(cb){
         path: '/login'
     };
     var login_data = JSON.stringify({
-        email: 'test2@test.com',
+        email: 'test@test.com',
         password: '12345'
     });
 
@@ -79,9 +79,9 @@ function register(cb){
         path: '/register'
     };
     var register_data = JSON.stringify({
-        email: 'test3@test.com',
+        email: 'test@test.com',
         password: '12345',
-        name: 'Student 4'
+        name: 'Student 1'
     });
 
     console.log("Register...");
@@ -101,7 +101,7 @@ function getExpList(cb){
         path: '/getExpList'
     };
     var getExpList_data = JSON.stringify({
-        email: 'test2@test.com',
+        email: 'test@test.com',
         token: globalToken
     });
     console.log("Get Experiments List...");
@@ -122,7 +122,7 @@ function startExp(cb){
         path: '/startExp'
     };
     var startExp_data = JSON.stringify({
-        email: 'test2@test.com',
+        email: 'test@test.com',
         token: globalToken,
         expID: globalSelectedExpID
     });
@@ -144,7 +144,7 @@ function sendReport(cb){
         path: '/sendReport'
     };
     var sendReport_data = JSON.stringify({
-        email: 'test2@test.com',
+        email: 'test@test.com',
         token: globalToken,
         expID: 'gravity',
         report: [
