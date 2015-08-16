@@ -15,7 +15,7 @@ var globalExpIDsArray;
 var globalExpNamesArray;
 var globalSelectedExpID;
 
-var operations = [register, login, getExpList, startExp, sendReport];
+var operations = [register, login, getExpList, startExp, sendReport, updateInfo];
 
 async.series(operations,  function(){
     console.log("All operations are finished.");
@@ -60,7 +60,7 @@ function login(cb){
     };
     var login_data = JSON.stringify({
         email: 'test@test.com',
-        password: '12345'
+        password: '54321'
     });
 
     console.log("Login...");
@@ -86,6 +86,29 @@ function register(cb){
 
     console.log("Register...");
     httpRequest(register_options, register_data, function(msg){
+        console.log(msg);
+        cb();
+    });
+
+
+}
+
+function updateInfo(cb){
+    var updateInfo_options = {
+        host: 'localhost',
+        port: 8080,
+        method: 'POST',
+        path: '/updateInfo'
+    };
+    var updateInfo_data = JSON.stringify({
+        email: 'test@test.com',
+        token: globalToken,
+        newPassword: '54321',
+        newName: 'New Student 1'
+    });
+
+    console.log("UpdateInfo...");
+    httpRequest(updateInfo_options, updateInfo_data, function(msg){
         console.log(msg);
         cb();
     });

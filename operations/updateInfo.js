@@ -7,28 +7,23 @@ var defs = require('./../definitions');
 var db = require('./../database');
 var crypto = require('crypto');
 
-var reqData = ['email', 'token', 'newEmail', 'newPassword', 'newName'];
+var reqData = ['email', 'token', 'newPassword', 'newName'];
 var resData = {message: ''};
 
 function execute(clientInfo, cb) {
     var retObj = {};
     var authMsg = session.authenticateClient(clientInfo);
-    var newEmail, newHashedPassword, newName;
+    var newHashedPassword, newName;
 
-    if(clientInfo.containsProp('newEmail')){
-        //TODO
-        // decidir se vamos trocar email. acho melhor não
-        newEmail = clientInfo.newEmail;
-    }
     if(clientInfo.containsProp('newPassword')){
         newHashedPassword = crypto.createHash('sha1').update(clientInfo.newPassword).digest('hex');
     }
-    if(clientInfo.containsProp('newEmail')){
+    if(clientInfo.containsProp('newName')){
         newName = clientInfo.newName;
     }
 
     if (authMsg == defs.returnMessage.SUCCESS) {
-        console.log('Client %s <%s> updated its info successfully', clientInfo.address, clientInfo.email);
+
         db.updateUser(clientInfo.email, newHashedPassword, newName, defs.profileType.STUDENT, function(retMsg){
 
             if (retMsg == defs.returnMessage.SUCCESS) {

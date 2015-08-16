@@ -13,7 +13,7 @@ const opsIndex = [
     'getExpList',
     'getExpInfo',
     'startExp',
-    'sendReport'
+    'sendReport',
 ];
 
 //fields: {execute: function, reqData: array of keys, resData: empty retObj}
