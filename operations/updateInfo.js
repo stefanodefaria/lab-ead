@@ -27,6 +27,7 @@ function execute(clientInfo, cb) {
         db.updateUser(clientInfo.email, newHashedPassword, newName, defs.profileType.STUDENT, function(retMsg){
 
             if (retMsg == defs.returnMessage.SUCCESS) {
+
                 console.log('Client %s <%s> updated info successfully', clientInfo.address, clientInfo.email);
             }
             else {
