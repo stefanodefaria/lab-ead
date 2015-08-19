@@ -1,7 +1,0 @@
-{"_id":"admin@test.com","password":"8cb2237d0679ca88db6464eac60da96345513964","type":"admin"}
-{"_id":"felipe@test.com","password":"8cb2237d0679ca88db6464eac60da96345513964","name":"felipe","type":"student"}
-{"_id":"student1@test.com","password":"8cb2237d0679ca88db6464eac60da96345513964","type":"student"}
-{"_id":"student2@test.com","password":"8cb2237d0679ca88db6464eac60da96345513964","type":"student"}
-{"_id":"student3@test.com","password":"8cb2237d0679ca88db6464eac60da96345513964","name":"Student One","type":"student"}
-{"_id":"student4@test.com","password":"8cb2237d0679ca88db6464eac60da96345513964","name":"Student 4","type":"student"}
-{"_id":"student9@test.com","password":"8cb2237d0679ca88db6464eac60da96345513964","name":"Student 4","type":"student"}
