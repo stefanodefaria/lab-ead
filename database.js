@@ -136,6 +136,22 @@ function addReport(email, expID, report, cb){
     });
 }
 
+function getReport(email,cb){
+    var query = "select expID,report from REPORTS where email=$email";
+    var arguments ={$email:email};
+
+    db.run(query,arguments, function(err){
+
+        if(err) {
+            utils.catchErr(err);
+            return cb(defs.returnMessage.SERVER_ERROR);
+        }
+        cb(defs.returnMessage.SUCCESS);
+    });
+
+
+}
+
 module.exports.insertReport = addReport;
 module.exports.loadDB = initialize;
 module.exports.find = findUser;
