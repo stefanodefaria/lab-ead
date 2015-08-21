@@ -40,9 +40,8 @@ function execute(clientInfo, cb) {
     else {
         retObj.message = authMsg;
         console.log('Client %s <%s> failed to update info: %s', clientInfo.address, clientInfo.email, retObj.message);
+        cb(retObj);
     }
-
-    cb(retObj);
 }
 
 module.exports.reqData = reqData;
