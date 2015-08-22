@@ -10,7 +10,15 @@ const returnMessage = {
     BAD_DATA: 'BAD_DATA',                           //Corrupt data provided by client
     SERVER_ERROR: 'SERVER_ERROR',                   //Internal unexpected server error
     EMAIL_NOT_UNIQUE: 'EMAIL_NOT_UNIQUE',           //Email already used, when trying to register
-    MISSING_DATA: 'MISSING_DATA'                    //Missing parameter data (ie email, password, username)
+    MISSING_DATA: 'MISSING_DATA',                   //Missing parameter data (ie email, password, username)
+    DEVICE_BUSY: 'DEVICE_BUSY'                      //Requested device is not available
+};
+
+const deviceStatus = {
+    UNSTARTED: 'UNSTARTED',
+    IN_PROGRESS: 'IN_PROGRESS',
+    FINISHED: 'FINISHED',
+    UNKNOWN: 'UNKNOWN'
 };
 
 const profileType = {
@@ -21,3 +29,4 @@ const profileType = {
 
 module.exports.returnMessage = returnMessage;
 module.exports.profileType = profileType;
+module.exports.deviceStatus = deviceStatus;
