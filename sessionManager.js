@@ -82,13 +82,13 @@ function validateCredentials(email, password, cb){
 
     database.find(email, function (msg, user) {
         if(msg !== defs.returnMessage.SUCCESS){
-            return cb(msg, false);
+            return cb(msg);
         }
         if (user && user.password === hashedPassword){ //if found 1 match
-            return cb(msg, true);
+            return cb(msg, user);
         }
         else{
-            return cb(defs.returnMessage.BAD_CREDENTIALS, false);
+            return cb(defs.returnMessage.BAD_CREDENTIALS);
         }
     });
 }
@@ -105,9 +105,9 @@ function login(clientInfo, cb){
 
     try{
         //ASYNC DB validation
-        validateCredentials(clientInfo.email, clientInfo.password, function(msg, validated){
+        validateCredentials(clientInfo.email, clientInfo.password, function(msg, user){
             ret_obj.message = msg;
-            if(validated){//if password matches email
+            if(msg === defs.returnMessage.SUCCESS){//if password matches email
                 //get current time
                 var currentTime = utils.currentTimeInSeconds();
 
@@ -125,6 +125,9 @@ function login(clientInfo, cb){
                 ret_obj.message = defs.returnMessage.SUCCESS;
                 ret_obj.timeout = connectionTimeOut;
                 ret_obj.token = token;
+                ret_obj.name = user.name;
+                ret_obj.accType = user.accType;
+
             }
             cb(ret_obj);
             //return;
