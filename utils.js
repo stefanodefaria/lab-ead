@@ -41,6 +41,7 @@ function catchErr(err){
     console.error("----------------------------------------------");
     console.error("ERROR - Caught " + errType + " exception");
     console.error(err.stack);
+    console.trace();
     console.error("----------------------------------------------");
     return defs.returnMessage.SERVER_ERROR;
 }
