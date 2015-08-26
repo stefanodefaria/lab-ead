@@ -2,6 +2,7 @@
  * Created by stefano on 19/05/15.
  */
 var defs = require("./definitions");
+var utils = require("./utils");
 
 const expIndex = [
     "gravity",
@@ -22,15 +23,29 @@ function initialize() {
     }
 }
 
-function experimentIsAvailable(key){
-    return (experiments[key]!== undefined);
+function experimentIsAvailable(key, cb){
+    if(experiments[key]!== undefined){
+        return cb(defs.returnMessage.SUCCESS);
+    }
+    return cb(defs.returnMessage.BAD_DATA);
 }
 
-function startExperiment(key) {
-    if (experimentIsAvailable(key)){
-        return experiments[key].execute();
-    }
-    return defs.returnMessage.BAD_DATA;
+function startExperiment(key, cb) {
+
+    experimentIsAvailable(key, function(msg){
+        if (msg !== defs.returnMessage.SUCCESS){
+            return cb(defs.returnMessage.BAD_DATA);
+        }
+        else{
+            experiments[key].execute(function(err, msg2){
+                if(err){
+                    utils.catchErr(err);
+                    return cb(defs.returnMessage.SERVER_ERROR)
+                }
+                return cb(msg2);
+            });
+        }
+    });
 }
 
 function getCompleteExpInfo(key){

@@ -42,7 +42,7 @@ function execute(cb){
 
     serialDevice.startDevice(deviceInfo.serialID, 5000, function(err, dev){
         if(err){
-            cb(err);
+            return cb(err);
         }
 
         device = dev;

@@ -12,9 +12,9 @@ var expReportInfo = [
     {fieldName:"Distância 4:", hint:"Em metros"}
 ];
 
-function execute(){
+function execute(cb){
     console.log("EXECUTOUUUUUU GRAVIDADEEEE");
-    return defs.returnMessage.SUCCESS;
+    return cb(null, defs.returnMessage.SUCCESS);
 }
 
 module.exports.expReportInfo = expReportInfo;

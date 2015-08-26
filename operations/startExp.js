@@ -12,10 +12,17 @@ var resData = {message: ''};
 function execute(clientInfo, cb) {
     var retObj = {};
     var authMsg = session.authenticateClient(clientInfo);
-    var expIsAvailable = exp.experimentIsAvailable(clientInfo.expID);
 
-    if (authMsg === defs.returnMessage.SUCCESS && expIsAvailable) {
-        retObj.message = exp.startExperiment(clientInfo.expID);
+    if (authMsg !== defs.returnMessage.SUCCESS) {
+
+        retObj.message = authMsg;
+        console.log('Client %s <%s> failed to perform startExp: %s', clientInfo.address, clientInfo.email, retObj.message);
+        return cb(retObj);
+    }
+
+    exp.startExperiment(clientInfo.expID, function(msg){
+
+        retObj.message = msg;
 
         if (retObj.message === defs.returnMessage.SUCCESS) {
             console.log('Client %s <%s> performed startExp successfully', clientInfo.address, clientInfo.email);
@@ -24,13 +31,8 @@ function execute(clientInfo, cb) {
         else {
             console.log('Client %s <%s> failed to perform startExp: %s', clientInfo.address, clientInfo.email, retObj.message);
         }
-    }
-    else {
-        retObj.message = authMsg;
-        console.log('Client %s <%s> failed to perform startExp: %s', clientInfo.address, clientInfo.email, retObj.message);
-    }
-
-    cb(retObj);
+        return cb(retObj);
+    });
 }
 
 module.exports.reqData = reqData;
