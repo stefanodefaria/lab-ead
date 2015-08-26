@@ -125,7 +125,7 @@ function updateUser(email, sha1Password, name, accType, cb) {
 
 function addReport(email, expID, report, cb){
     var query = "insert or replace into REPORTS values ($email, $expID, $report, CURRENT_TIMESTAMP)";
-    var arguments = {$email: email, $expID: expID, $report: report};
+    var arguments = {$email: email, $expID: expID, $report: JSON.stringify(report)};
 
     db.run(query, arguments, function(err){
         if(err) {
