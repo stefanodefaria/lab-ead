@@ -51,13 +51,12 @@ function execute(cb){
 
         // checks if device is available
         device.requestStatus(function(err, msg){
-            if(msg===serialDevice.messageByte.AVAILABLE){
-                device.start(startCallback, endCallback);
-                cb(null, defs.returnMessage.SUCCESS);
+            if(msg!==serialDevice.messageByte.AVAILABLE){
+                return cb(null, defs.returnMessage.DEVICE_BUSY);
             }
-            else{
-                cb(null, defs.returnMessage.DEVICE_BUSY);
-            }
+
+            device.start(startCallback, endCallback);
+            return cb(null, defs.returnMessage.SUCCESS);
         })
     });
 }
