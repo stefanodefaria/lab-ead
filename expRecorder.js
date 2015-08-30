@@ -7,6 +7,8 @@ var ffmpeg = require('fluent-ffmpeg');
 var utils = require('./utils');
 var defs = require('./definitions');
 
+var startupDelay = 500; //ms, delay to wait for possible error during startup
+
 var baseOutputPath = './camera_output',
     videoFileName = 'output.mp4',
     snapshotDirPath = 'snapshots',
@@ -32,28 +34,34 @@ function expRecorder(opts){
     }
 
     var path = opts.path || 'default_path',
-        recTime = opts.recTime || 5,
+        recTimeOption = (opts.recTime)? '-t ' + opts.recTime: null,
         cameraPath = opts.cameraPath,
         fps = opts.fps || 30,
         bitRate = opts.bitRate || 1000,
         snapshotFrequency = opts.snapshotFrequency || 3; //hertz;
 
-    var outputDirPath = baseOutputPath + '/' + path + '/';
+    var outputDirPath = baseOutputPath + '/' + path;
 
     var error = null,
         started = false,
         finished = false;
 
+    var ffmpegProcess;
+
     utils.deleteFolderRecursive(outputDirPath);
     fs.mkdir(outputDirPath);
-    fs.mkdir(outputDirPath + snapshotDirPath);
+    fs.mkdir(outputDirPath + '/' + snapshotDirPath);
 
     return {
         startRecording: function(callback){
 
-            ffmpeg(cameraPath)
-                .inputOptions(['-t ' + recTime])
-                .output(outputDirPath + '/' + videoFileName)
+            ffmpegProcess =  ffmpeg(cameraPath);
+
+            if(recTimeOption){
+                ffmpegProcess.inputOption(recTimeOption);
+            }
+
+            ffmpegProcess.output(outputDirPath + '/' + videoFileName)
                 .videoCodec('libx264')
                 .size('640x480')
                 .outputOption('-x264opts bitrate=' + bitRate)
@@ -61,35 +69,50 @@ function expRecorder(opts){
                 .size('640x480')
                 .outputOptions([
                     '-vf fps=' + snapshotFrequency
-                ])
-                .on('start', function(cmd) {
-                    console.log('Executing: ', cmd);
+                ]);
 
-                    // waits for possible error during startup
-                    setTimeout(function(){
-                        if(!finished){ // could be finished in case of error before this timeout
-                            started = true;
-                            console.log('Started recording with ' + cameraPath);
-                            console.log('Output files will be saved on ' + outputDirPath);
-                            callback(null, defs.returnMessage.SUCCESS);
-                        }
-                    },500);
-
-                })
-                .on('error', function(err) {
-                    console.log('ERROR recording with ' + cameraPath);
-                    error = err;
-                    finished = true;
-                    if(!started){
-                        return callback(err);
-                    }
-                    utils.catchErr(err);
-                })
-                .on('end', function() {
-                    console.log('Finished recording with ' + cameraPath);
-                    finished = true;
-                })
+                ffmpegProcess.on('start', onStart)
+                .on('error', onError)
+                .on('end', onEnd)
                 .run();
+
+            function onStart(cmd){
+                console.log('Executing: ', cmd);
+
+                // delay to wait for possible error during startup
+                setTimeout(function(){
+                    if(!finished){ // could be finished in case of error before this timeout
+                        started = true;
+                        console.log('Started recording with ' + cameraPath);
+                        console.log('Output files will be saved on ' + outputDirPath);
+                        callback(null, defs.returnMessage.SUCCESS);
+                    }
+                }, startupDelay);
+            }
+
+            function onError(err){
+                console.log('ERROR recording with ' + cameraPath);
+                error = err;
+                finished = true;
+
+                if(!started){ //could be called before actually started
+                    return callback(err);
+                }
+                utils.catchErr(err);
+            }
+
+            function onEnd(){
+                console.log('Finished recording with ' + cameraPath);
+                finished = true;
+            }
+        },
+        stopRecording: function(){
+            ffmpegProcess.on('progress', function(progress){
+                console.log("Stoping recording at " + progress.timemark);
+                console.log(ffmpegProcess);
+                ffmpegProcess.ffmpegProc.stdin.write('q');
+                //ffmpegProcess..kill('SIGTERM'); //sends termination signal
+            })
         },
         getStatus: function(){
             return {finished: finished, error: error};
@@ -137,7 +160,6 @@ function expRecorder(opts){
 
 //var recOpts = {
 //    path: 'test@test.com_gravity',
-//    recTime: 2,
 //    cameraPath: '/dev/video0',
 //    fps: 30,
 //    bitRate: 1000,
@@ -146,24 +168,25 @@ function expRecorder(opts){
 //
 //var recorder = expRecorder(recOpts);
 //
-//recorder.startRecording(console.log);
+//recorder.startRecording(function(err, msg){
+//    console.log(msg);
+//    var intervalID = setInterval(function(){
+//        console.log(recorder.getStatus().finished);
+//        if(recorder.getStatus().finished){
+//            clearInterval(intervalID);
 //
-//var intervalID = setInterval(function(){
-//    if(recorder.getStatus().finished){
-//        clearInterval(intervalID);
+//            recorder.flushSnapshots();
+//            //recorder.getVideo();
+//            return;
+//        }
 //
-//        recorder.flushSnapshots();
-//        //recorder.getVideo();
-//        return;
-//    }
+//        recorder.stopRecording();
 //
-//    //recorder.getSnapshot(1, function(stream){
-//    //    console.log(stream)
-//    //});
+//        //recorder.getSnapshot(1, function(stream){
+//        //    console.log(stream)
+//        //});
 //
 //
-//    console.log("waiting...");
-//}, 1000);
-
-
-
+//    }, 333);
+//});
+//
