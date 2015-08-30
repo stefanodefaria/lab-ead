@@ -2,14 +2,18 @@
  * Created by stefano on 17/08/15.
  */
 var serialModule = require("serialport");
+var defs = require('./definitions');
 
-const messageByte = {
+const commandByte = {
+    START: '3',
+    REQUEST_STATUS: '4',
+    RESET: '5'
+};
+
+const returnByte = {
     AVAILABLE: '0',
     BUSY: '1',
     END: '2',
-    START: '3',
-    REQUEST_STATUS: '4',
-    RESET: '5',
     SUCCESS: '6',
     UNKNOWN_COMMAND: '7'
 };
@@ -70,7 +74,7 @@ function waitForDevice(serialPort, initTimeout, cb){
 
     function intervalCallback(){
         if(count < initTimeout/stepTime){
-            serialPort.write(messageByte.REQUEST_STATUS, function(err){
+            serialPort.write(commandByte.REQUEST_STATUS, function(err){
                 if(err){
                     clearInterval(intervalID);
                     serialPort.removeListener('data', dataCallback);
@@ -98,21 +102,22 @@ function waitForDevice(serialPort, initTimeout, cb){
 }
 
 function deviceObj(serialPort) {
-    var curCallback,
-        finishCallback;
+    var curCallback;
+    var curState = defs.deviceStatus.UNSTARTED;
 
     serialPort.on('data', function (data){
         var msg = String.fromCharCode(data.readInt8(0));
 
-        if(msg === messageByte.END && finishCallback){
-            return finishCallback(null, msg);
+        if(msg === returnByte.END){
+            curState = defs.deviceStatus.FINISHED;
+            return;
         }
         curCallback(null, msg);
     });
 
     function writeToDevice(msgByte, cb){
         curCallback = cb;
-        serialPort.write(msgByte, function(err){
+        serialPort.write(msgByte, function(err, msg){
             if(err){
                 return cb(err);
             }
@@ -120,16 +125,46 @@ function deviceObj(serialPort) {
     }
 
     return{
-        requestStatus: function(cb){
-            writeToDevice(messageByte.REQUEST_STATUS, cb);
+        deviceIsAvailable: function(cb){ //for checking if routine can be started
+
+            writeToDevice(commandByte.REQUEST_STATUS, function(err, msg){
+                if(err){
+                    return cb(err);
+                }
+
+                if(msg === returnByte.AVAILABLE){
+                    return cb(null, true);
+                }
+                else if(msg === returnByte.BUSY){
+                    return cb(null, false);
+                }
+                else{
+                    var error = new Error("Error checking serial device availability: unknown response");
+                    error.type = 'SerialDeviceError';
+                    cb(error);
+                }
+            });
         },
-        start: function(resCB, finishCB){
-            finishCallback = finishCB;
-            writeToDevice(messageByte.START, resCB);
+        start: function(cb){
+            writeToDevice(commandByte.START, function(err){
+                if(err){
+                    return cb(err);
+                }
+                curState = defs.deviceStatus.IN_PROGRESS;
+                cb(null, defs.returnMessage.SUCCESS);
+            });
         },
         reset: function(cb){
-            finishCallback = null;
-            writeToDevice(messageByte.RESET, cb);
+            writeToDevice(commandByte.RESET, function(err){
+                if(err){
+                    return cb(err);
+                }
+                curState = defs.deviceStatus.UNSTARTED;
+                cb(null, defs.returnMessage.SUCCESS);
+            });
+        },
+        getStatus: function(){ //for checking if routine has started / ended
+            return curState;
         },
         getSerialPort: function(){
             return serialPort;
@@ -137,38 +172,37 @@ function deviceObj(serialPort) {
     }
 }
 
-function translateMessageByte(msgByte){
-    for(var key in messageByte){
-        if(messageByte.hasOwnProperty(key) && messageByte[key] === String.fromCharCode(msgByte)){
-            return key;
-        }
-    }
-}
+//NOT USED ANYMORE
+//function translateMessageByte(msgByte){
+//    for(var key in returnByte){
+//        if(returnByte.hasOwnProperty(key) && returnByte[key] === String.fromCharCode(msgByte)){
+//            return key;
+//        }
+//    }
+//}
 
 module.exports.startDevice = startDevice;
-module.exports.messageByte = messageByte;
-module.exports.translateMessageByte = translateMessageByte;
 
 /**
  * SOMENTE PARA TESTES
  */
-// function test(){
-//   var arduinoID = 'usb-Arduino__www.arduino.cc__0043_85231363236351D0A131-if00';
-//
-//   startDevice(arduinoID, 5000, function(err, device){
-//     if(err)
-//       console.error(err.stack);
-//
-//     device.requestStatus(function(err, msg){
-//       if(msg===messageByte.AVAILABLE){
-//         device.start(function(err, msg){
-//           console.log("start "+ msg)
-//         }, function(err, msg){
-//           console.log("end " + msg);
-//         })
-//       }
-//     })
-//   });
-// }
-//
-// test();
+ //function test(){
+ //  var arduinoID = 'usb-Arduino__www.arduino.cc__0043_85231363236351D0A131-if00';
+ //
+ //  startDevice(arduinoID, 5000, function(err, device){
+ //    if(err)
+ //      console.error(err.stack);
+ //
+ //    device.deviceIsAvailable(function(err, available){
+ //      if(available){
+ //        device.start(function(err, msg){
+ //          console.log("start "+ msg)
+ //        }, function(err, msg){
+ //          console.log("end " + msg);
+ //        })
+ //      }
+ //    })
+ //  });
+ //}
+ //
+ //test();
