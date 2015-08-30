@@ -15,6 +15,7 @@ const returnMessage = {
 };
 
 const deviceStatus = {
+    UNINITIALIZED: 'UNINITIALIZED',
     UNSTARTED: 'UNSTARTED',
     IN_PROGRESS: 'IN_PROGRESS',
     FINISHED: 'FINISHED',
