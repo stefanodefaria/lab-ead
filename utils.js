@@ -3,6 +3,7 @@
  */
 
 var defs = require('./definitions');
+var fs = require('fs');
 
 /**
  * Client address parser
@@ -56,6 +57,24 @@ function extractOperation(req){
 }
 
 /**
+ * Deletes folder,subfolders and files in it, synchronously
+ * @param path - folder path
+ */
+function deleteFolderRecursive(path) {
+    if( fs.existsSync(path) ) {
+        fs.readdirSync(path).forEach(function(file,index){
+            var curPath = path + "/" + file;
+            if(fs.lstatSync(curPath).isDirectory()) { // recurse
+                deleteFolderRecursive(curPath);
+            } else { // delete file
+                fs.unlinkSync(curPath);
+            }
+        });
+        fs.rmdirSync(path);
+    }
+}
+
+/**
  * Adds function 'containsProp' to Object class
  * returns true if object contains given property
  * otherwise returns false
@@ -71,3 +90,4 @@ module.exports.clientAddress = clientAddress;
 module.exports.currentTimeInSeconds = currentTimeInSeconds;
 module.exports.catchErr = catchErr;
 module.exports.extractOperation = extractOperation;
+module.exports.deleteFolderRecursive = deleteFolderRecursive;
