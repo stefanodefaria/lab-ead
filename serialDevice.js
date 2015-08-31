@@ -102,7 +102,8 @@ function waitForDevice(serialPort, initTimeout, cb){
 }
 
 function deviceObj(serialPort) {
-    var curCallback;
+    var curCallback,
+        endCallback;
     var curState = defs.deviceStatus.UNSTARTED;
 
     serialPort.on('data', function (data){
@@ -110,9 +111,12 @@ function deviceObj(serialPort) {
 
         if(msg === returnByte.END){
             curState = defs.deviceStatus.FINISHED;
+            if(endCallback){
+                endCallback();
+            }
             return;
         }
-        curCallback(null, msg);
+        return curCallback(null, msg);
     });
 
     function writeToDevice(msgByte, cb){
@@ -171,6 +175,12 @@ function deviceObj(serialPort) {
                 curState = defs.deviceStatus.UNSTARTED;
                 cb(null);
             });
+        },
+        /**
+         * @param cb()
+         */
+        onEnd: function(cb){
+            endCallback = cb;
         },
         getStatus: function(){ //for checking if routine has started / ended
             return curState;

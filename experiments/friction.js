@@ -11,11 +11,16 @@ var expReportInfo = [
     {fieldName:"Tempo de uma piscada:", hint:"LED vermelho"}
 ];
 
-var deviceID = 'usb-Arduino__www.arduino.cc__0043_85231363236351D0A131-if00';
+var deviceID = 'usb-Arduino__www.arduino.cc__0043_85231363236351D0A131-if00',
+    cameraPath = '/dev/video0';
+
 var device;
 
 initalizeDevice();
 
+/**
+ * @param cb(err)
+ */
 function execute(cb){
 
     var deviceStatus = getStatus();
@@ -47,7 +52,7 @@ function execute(cb){
         default:
             var errorUnkownState = new Error('Device state could not be determined');
             errorUnkownState.type = 'SerialDeviceError';
-            cb(errorUnkownState);
+            return cb(errorUnkownState);
     }
 
     function checkAvailabilityAndStart(){
@@ -94,6 +99,14 @@ function getStatus(){
     return device.getStatus();
 }
 
+
+/**
+ * @param cb()
+ */
+function onEnd(cb){
+    device.onEnd(cb);
+}
+
 /**
  *
  * @param cb(err, msg)
@@ -105,9 +118,11 @@ function reset(cb){
 module.exports.expReportInfo = expReportInfo;
 module.exports.expInfo = expInfo;
 module.exports.expName = expName;
+module.exports.cameraPath = cameraPath;
 module.exports.execute = execute;
 module.exports.getStatus = getStatus;
 module.exports.reset = reset;
+module.exports.onEnd = onEnd;
 
 
 /*

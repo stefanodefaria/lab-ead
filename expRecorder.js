@@ -47,6 +47,7 @@ function expRecorder(opts){
         finished = false;
 
     var ffmpegProcess;
+    var onEndCallback;
 
     utils.deleteFolderRecursive(outputDirPath);
     fs.mkdir(outputDirPath);
@@ -83,9 +84,8 @@ function expRecorder(opts){
                 setTimeout(function(){
                     if(!finished){ // could be finished in case of error before this timeout
                         started = true;
-                        console.log('Started recording with ' + cameraPath);
-                        console.log('Output files will be saved on ' + outputDirPath);
-                        callback(null, defs.returnMessage.SUCCESS);
+                        console.log('Started recording with ' + cameraPath, ' - Output files will be saved on ' + outputDirPath);
+                        callback(null);
                     }
                 }, startupDelay);
             }
@@ -104,19 +104,28 @@ function expRecorder(opts){
             function onEnd(){
                 console.log('Finished recording with ' + cameraPath);
                 finished = true;
+                if(onEndCallback){
+                    onEndCallback();
+                }
             }
         },
         stopRecording: function(){
             ffmpegProcess.on('progress', function(progress){
-                console.log("Stoping recording at " + progress.timemark);
-                console.log(ffmpegProcess);
+                console.log("Stopping recording at " + progress.timemark);
                 ffmpegProcess.ffmpegProc.stdin.write('q');
                 //ffmpegProcess..kill('SIGTERM'); //sends termination signal
             })
         },
+        onEnd: function(cb){
+            onEndCallback = cb;
+        },
         getStatus: function(){
             return {finished: finished, error: error};
         },
+        /**
+         * @param count (snapshot index, starting from 1)
+         * @param cb(file readStream)
+         */
         getSnapshot: function(count, cb){
             var snapshotPath = outputDirPath + snapshotDirPath + '/' + snapshotFileName + count + snapshotFileExtension;
             console.log("path: ", snapshotPath);
@@ -131,6 +140,9 @@ function expRecorder(opts){
                 })
             }
         },
+        /**
+         * @param cb(file readStream)
+         */
         getVideo: function(cb){
 
             if(!finished || error){
@@ -146,12 +158,12 @@ function expRecorder(opts){
             })
         },
         flushSnapshots: function(){
-
-            utils.deleteFolderRecursive(outputDirPath + snapshotDirPath);
+            utils.deleteFolderRecursive(outputDirPath + '/' + snapshotDirPath);
         }
     }
 }
 
+module.exports = expRecorder;
 
 /**
  * SOMENTE PARA TESTES
