@@ -3,6 +3,9 @@
  */
 var defs = require("./definitions");
 var utils = require("./utils");
+var expRecorder = require("./expRecorder");
+
+const startRecordingDelay = 500; //milliseconds - delay between start recording and start exp execution
 
 const expIndex = [
     "gravity",
@@ -17,35 +20,102 @@ function initialize() {
 
     for (var i = 0; i < expIndex.length; i++) {
         var key = expIndex[i];
-        var mdl = require('./experiments/' + key);
-        experiments[key] = {execute: mdl.execute, expName: mdl.expName,
-            expInfo: mdl.expInfo, expReportInfo: mdl.expReportInfo};
+        experiments[key] = require('./experiments/' + key);
     }
 }
 
-function experimentIsAvailable(key, cb){
-    if(experiments[key]!== undefined){
-        return cb(defs.returnMessage.SUCCESS);
+/**
+ * @param key - exp Key (friction, gravity)
+ * @returns {{available: boolean, message: string}}
+ */
+function expAvailability(key){
+    var availability = {available: false, message: ''};
+
+    if(experiments[key]=== undefined){
+        availability.message = defs.returnMessage.BAD_DATA;
     }
-    return cb(defs.returnMessage.BAD_DATA);
-}
+    else{
 
-function startExperiment(key, cb) {
+        availability.message = experiments[key].getStatus();
 
-    experimentIsAvailable(key, function(msg){
-        if (msg !== defs.returnMessage.SUCCESS){
-            return cb(defs.returnMessage.BAD_DATA);
+        if(availability.message === defs.deviceStatus.UNSTARTED || availability.message === defs.deviceStatus.FINISHED){
+            availability.available = true;
         }
-        else{
-            experiments[key].execute(function(err, msg2){
-                if(err){
-                    utils.catchErr(err);
-                    return cb(defs.returnMessage.SERVER_ERROR)
-                }
-                return cb(msg2);
+    }
+
+    return availability;
+}
+
+function startExperiment(email, key, cb) {
+
+    var availability = expAvailability(key),
+        exp = experiments[key];
+
+    if(!availability.available && availability.message === defs.deviceStatus.IN_PROGRESS){ //device busy
+        return cb(defs.returnMessage.DEVICE_BUSY);
+    }
+    else if(!availability.available && availability.message === defs.returnMessage.BAD_DATA){ //bad exp key
+        return cb(defs.returnMessage.BAD_DATA);
+    }
+    else if(!availability){ //unknown state / uninitialized
+        return cb(defs.returnMessage.SERVER_ERROR);
+    }
+    else if(availability.message === defs.deviceStatus.FINISHED){
+        exp.reset(function(err){
+            if(err){
+                utils.catchErr(err);
+                return cb(defs.returnMessage.SERVER_ERROR);
+            }
+
+            startExpAndRecord();
+        })
+    }
+    else if(availability.message === defs.deviceStatus.UNSTARTED){
+        startExpAndRecord();
+    }
+
+    function startExpAndRecord(){
+        var recOpts = {
+            path: email + '_' + key,
+            cameraPath: exp.cameraPath,
+            fps: 30,
+            bitRate: 1000,
+            snapshotFrequency: 3
+        };
+
+        var recorder = expRecorder(recOpts);
+
+        recorder.onEnd(function(){
+            try{
+                recorder.flushSnapshots();
+            }
+            catch(err){
+                utils.catchErr(err);
+            }
+        });
+
+        recorder.startRecording(function(err){
+            if(err){
+                utils.catchErr(err);
+                return cb(defs.returnMessage.SERVER_ERROR);
+            }
+
+            exp.onEnd(function(){
+                recorder.stopRecording();
             });
-        }
-    });
+
+            setTimeout(function(){ //starts exp after some delay after starting recording
+                exp.execute(function(err2){
+                    if(err){
+                        utils.catchErr(err2);
+                        return cb(defs.returnMessage.SERVER_ERROR);
+                    }
+
+                    return cb(defs.returnMessage.SUCCESS);
+                });
+            }, startRecordingDelay);
+        });
+    }
 }
 
 function getCompleteExpInfo(key){
@@ -72,4 +142,12 @@ function getExpList(){
 module.exports.startExperiment = startExperiment;
 module.exports.getCompleteExpInfo = getCompleteExpInfo;
 module.exports.getExpList = getExpList;
-module.exports.experimentIsAvailable = experimentIsAvailable;
+module.exports.experimentIsAvailable = expAvailability;
+
+/*
+ SOMENTE PARA TESTES
+ */
+
+//setTimeout(function () {
+//    startExperiment('test@test', 'friction', console.log);
+//}, 2000);

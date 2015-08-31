@@ -20,7 +20,7 @@ function execute(clientInfo, cb) {
         return cb(retObj);
     }
 
-    exp.startExperiment(clientInfo.expID, function(msg){
+    exp.startExperiment(clientInfo.email, clientInfo.expID, function(msg){
 
         retObj.message = msg;
 
