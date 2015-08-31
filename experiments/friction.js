@@ -57,15 +57,17 @@ function execute(cb){
             }
 
             if(!available){
-                return cb(null, defs.returnMessage.DEVICE_BUSY);
+                var errorBusy = new Error(defs.returnMessage.DEVICE_BUSY);
+                errorBusy.type = 'SerialDeviceBusy';
+                return cb(errorBusy);
             }
 
-            device.start(function(err3, msg){
+            device.start(function(err3){
                 if(err3){
                     return cb(err3);
                 }
 
-                return cb(null, msg);
+                return cb(null);
             });
         })
     }
@@ -92,6 +94,10 @@ function getStatus(){
     return device.getStatus();
 }
 
+/**
+ *
+ * @param cb(err, msg)
+ */
 function reset(cb){
     device.reset(cb);
 }

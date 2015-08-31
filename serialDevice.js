@@ -125,6 +125,9 @@ function deviceObj(serialPort) {
     }
 
     return{
+        /**
+         * @param cb (err, available)
+         */
         deviceIsAvailable: function(cb){ //for checking if routine can be started
 
             writeToDevice(commandByte.REQUEST_STATUS, function(err, msg){
@@ -145,22 +148,28 @@ function deviceObj(serialPort) {
                 }
             });
         },
+        /**
+         * @param cb(err)
+         */
         start: function(cb){
             writeToDevice(commandByte.START, function(err){
                 if(err){
                     return cb(err);
                 }
                 curState = defs.deviceStatus.IN_PROGRESS;
-                cb(null, defs.returnMessage.SUCCESS);
+                cb(null);
             });
         },
+        /**
+         * @param cb(err)
+         */
         reset: function(cb){
             writeToDevice(commandByte.RESET, function(err){
                 if(err){
                     return cb(err);
                 }
                 curState = defs.deviceStatus.UNSTARTED;
-                cb(null, defs.returnMessage.SUCCESS);
+                cb(null);
             });
         },
         getStatus: function(){ //for checking if routine has started / ended
