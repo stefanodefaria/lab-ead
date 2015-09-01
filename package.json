@@ -15,6 +15,7 @@
   "license": "ISC",
   "dependencies": {
     "fluent-ffmpeg": "^2.0.1",
+    "serialport": "^1.7.4",
     "sqlite3": "^3.0.9",
     "uuid": "^2.0.1"
   }
