@@ -137,19 +137,23 @@ function addReport(email, expID, report, cb){
 }
 
 function getReport(email,cb){
-    var query = "select expID,report from REPORTS where email=$email";
+    var query = "select EXP_ID, REPORT, TIMESTAMP from REPORTS where EMAIL = $email";
     var arguments ={$email:email};
 
-    db.run(query,arguments, function(err){
+    var reports = [];
+
+    db.all(query,arguments, function(err, rows){
 
         if(err) {
-            utils.catchErr(err);
-            return cb(defs.returnMessage.SERVER_ERROR);
+            return cb(err);
         }
-        cb(defs.returnMessage.SUCCESS);
+
+        for(var i=0; i<rows.length; i++){
+            reports.push( {expID: rows[i].EXP_ID, report: rows[i].REPORT , timestamp:rows[i].TIMESTAMP});
+        }
+
+        cb(null, reports);
     });
-
-
 }
 
 module.exports.insertReport = addReport;
@@ -157,3 +161,20 @@ module.exports.loadDB = initialize;
 module.exports.find = findUser;
 module.exports.registerUser = registerUser;
 module.exports.updateUser = updateUser;
+module.exports.getReport=getReport;
+
+/*setTimeout(function(){
+
+    getReport('test2@test.com',function(err,report){
+
+        if(err){
+            console.error(err.stack);
+            return;
+        }
+        console.log(report);
+        console.log("ola");
+
+    })
+
+
+},2000);*/
