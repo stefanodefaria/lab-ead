@@ -37,6 +37,7 @@ function expRecorder(opts){
         recTimeOption = (opts.recTime)? '-t ' + opts.recTime: null,
         cameraPath = opts.cameraPath,
         fps = opts.fps || 30,
+        size = opts.size || '640x480',
         bitRate = opts.bitRate || 1000,
         snapshotFrequency = opts.snapshotFrequency || 3; //hertz;
 
@@ -64,10 +65,10 @@ function expRecorder(opts){
 
             ffmpegProcess.output(outputDirPath + '/' + videoFileName)
                 .videoCodec('libx264')
-                .size('640x480')
+                .size(size)
                 .outputOption('-x264opts bitrate=' + bitRate)
                 .output(outputDirPath + '/' + snapshotDirPath + '/' +snapshotFileName + '%d' + snapshotFileExtension)
-                .size('640x480')
+                .size(size)
                 .outputOptions([
                     '-vf fps=' + snapshotFrequency
                 ]);
@@ -84,8 +85,9 @@ function expRecorder(opts){
                 setTimeout(function(){
                     if(!finished){ // could be finished in case of error before this timeout
                         started = true;
-                        console.log('Started recording with ' + cameraPath, ' - Output files will be saved on ' + outputDirPath);
-                        callback(null);
+                        //console.log('Started recording with ' + cameraPath, ' - Output files will be saved on ' + outputDirPath);
+                        console.log('Started recording successfully');
+                        return callback(null);
                     }
                 }, startupDelay);
             }
@@ -111,7 +113,7 @@ function expRecorder(opts){
         },
         stopRecording: function(){
             ffmpegProcess.on('progress', function(progress){
-                console.log("Stopping recording at " + progress.timemark);
+                console.log("Stopping recording with " + cameraPath + " at " + progress.timemark);
                 ffmpegProcess.ffmpegProc.stdin.write('q');
                 //ffmpegProcess..kill('SIGTERM'); //sends termination signal
             })
@@ -124,37 +126,51 @@ function expRecorder(opts){
         },
         /**
          * @param count (snapshot index, starting from 1)
-         * @param cb(file readStream)
+         * @param cb(err, data)
+         *          if 'err' and 'data' are undefined, means file is not ready yet
          */
         getSnapshot: function(count, cb){
-            var snapshotPath = outputDirPath + snapshotDirPath + '/' + snapshotFileName + count + snapshotFileExtension;
-            console.log("path: ", snapshotPath);
-            if(started){
-                fs.exists(snapshotPath, function(exists){
-                    if(exists){
-                        return cb(fs.createReadStream(snapshotPath))
-                    }
-                    else{
-                        return cb(null);
-                    }
-                })
+            var snapshotPath = outputDirPath + '/' + snapshotDirPath + '/' + snapshotFileName + count + snapshotFileExtension;
+
+            if(!started || error || finished){
+                return cb();
             }
+
+            fs.exists(snapshotPath, function(exists){
+                if(!exists){
+                    return cb();
+                }
+
+                fs.readFile(snapshotPath, function(err, data){
+                    if(err){
+                        return cb(err);
+                    }
+                    return cb(null, data);
+                });
+            })
+
         },
         /**
-         * @param cb(file readStream)
+         * @param cb(err, data)
+         *          if 'err' and 'data' are undefined, means file is not ready yet
          */
         getVideo: function(cb){
 
             if(!finished || error){
-                return cb(null);
+                return cb();
             }
 
-            fs.exists(outputDirPath + videoFileName, function(exists){
+            fs.exists(outputDirPath + '/' + videoFileName, function(exists){
                 if(!exists){
-                    return cb(null);
+                    return cb();
                 }
 
-                return cb(fs.createReadStream(outputDirPath + videoFileName));
+                fs.readFile(outputDirPath + '/' + videoFileName, function(err, data){
+                    if(err){
+                        return cb(err);
+                    }
+                    return cb(null, data);
+                });
             })
         },
         flushSnapshots: function(){

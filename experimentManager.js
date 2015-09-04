@@ -3,9 +3,6 @@
  */
 var defs = require("./definitions");
 var utils = require("./utils");
-var expRecorder = require("./expRecorder");
-
-const startRecordingDelay = 500; //milliseconds - delay between start recording and start exp execution
 
 const expIndex = [
     "gravity",
@@ -48,6 +45,8 @@ function expAvailability(key){
 
 function startExperiment(email, key, cb) {
 
+
+
     var availability = expAvailability(key),
         exp = experiments[key];
 
@@ -57,64 +56,87 @@ function startExperiment(email, key, cb) {
     else if(!availability.available && availability.message === defs.returnMessage.BAD_DATA){ //bad exp key
         return cb(defs.returnMessage.BAD_DATA);
     }
-    else if(!availability){ //unknown state / uninitialized
+    else if(!availability.available){ //unknown state / uninitialized
         return cb(defs.returnMessage.SERVER_ERROR);
     }
-    else if(availability.message === defs.deviceStatus.FINISHED){
+    else if(availability.message === defs.deviceStatus.FINISHED){ //resets starts exp
         exp.reset(function(err){
             if(err){
                 utils.catchErr(err);
                 return cb(defs.returnMessage.SERVER_ERROR);
             }
 
-            startExpAndRecord();
+            exp.execute(email, executionCallback);
         })
     }
-    else if(availability.message === defs.deviceStatus.UNSTARTED){
-        startExpAndRecord();
+    else if(availability.message === defs.deviceStatus.UNSTARTED){ //starts exp
+        exp.execute(email, executionCallback);
     }
 
-    function startExpAndRecord(){
-        var recOpts = {
-            path: email + '_' + key,
-            cameraPath: exp.cameraPath,
-            fps: 30,
-            bitRate: 1000,
-            snapshotFrequency: 3
-        };
 
-        var recorder = expRecorder(recOpts);
+    function executionCallback(err){
+        if(err){
+            utils.catchErr(err);
+            return cb(defs.returnMessage.SERVER_ERROR);
+        }
 
-        recorder.onEnd(function(){
-            try{
-                recorder.flushSnapshots();
+        return cb(defs.returnMessage.SUCCESS)
+    }
+}
+
+/**
+ * @param key - experiment key (gravity, friction, etc...)
+ * @param snapshotCount - image index for 'fake streaming'
+ * @param cb (message, snapshotCount, base64File)
+ *                 snapshotCount>0 and base64File not null: display given image and query again
+ *                 snapshotCount>0 and base64File null:     display previous downloaded image and query again
+ *                 snapshotCount=-1:                        display video and query again
+ */
+function getExpStatus(key, snapshotCount, cb){
+
+    var availability = expAvailability(key),
+        exp = experiments[key],
+        recorder = exp.getRecorder();
+
+    if(availability.message === defs.returnMessage.BAD_DATA || availability.message === defs.deviceStatus.UNSTARTED){ //bad exp key
+        return cb(null, defs.returnMessage.BAD_DATA);
+    }
+    else if(availability.message === defs.deviceStatus.FINISHED){
+
+        recorder.getVideo(function(err, data){
+            if(!data){
+                if(err){
+                    utils.catchErr(err);
+                }
+                return cb(defs.returnMessage.SERVER_ERROR);
             }
-            catch(err){
-                utils.catchErr(err);
-            }
+
+            var base64EncodedData = data.toString('base64');
+
+            return cb(defs.returnMessage.SUCCESS, -1, base64EncodedData);
         });
+    }
+    else if(availability.message === defs.deviceStatus.IN_PROGRESS){
 
-        recorder.startRecording(function(err){
+        recorder.getSnapshot(snapshotCount, function(err, data){
             if(err){
                 utils.catchErr(err);
                 return cb(defs.returnMessage.SERVER_ERROR);
             }
 
-            exp.onEnd(function(){
-                recorder.stopRecording();
-            });
+            if(data){ //new snapshot is available, snapshotCount updated
+                var base64EncodedData = data.toString('base64');
 
-            setTimeout(function(){ //starts exp after some delay after starting recording
-                exp.execute(function(err2){
-                    if(err){
-                        utils.catchErr(err2);
-                        return cb(defs.returnMessage.SERVER_ERROR);
-                    }
-
-                    return cb(defs.returnMessage.SUCCESS);
-                });
-            }, startRecordingDelay);
+                return cb(defs.returnMessage.SUCCESS, snapshotCount +1, base64EncodedData);
+            }
+            else{ //new snapshot not yet captured.
+                return cb(defs.returnMessage.SUCCESS, snapshotCount);
+            }
         });
+
+    }
+    else if(!availability.available || (availability.available && !recorder)){ //unknown state / uninitialized  / recorder missing
+        return cb(defs.returnMessage.SERVER_ERROR);
     }
 }
 
@@ -139,15 +161,33 @@ function getExpList(){
     return [expKeys, expNames];
 }
 
+
 module.exports.startExperiment = startExperiment;
 module.exports.getCompleteExpInfo = getCompleteExpInfo;
 module.exports.getExpList = getExpList;
 module.exports.experimentIsAvailable = expAvailability;
+module.exports.getExpStatus = getExpStatus;
 
 /*
  SOMENTE PARA TESTES
  */
 
 //setTimeout(function () {
-//    startExperiment('test@test', 'friction', console.log);
+//    startExperiment('test@test.com', 'friction', function(){});
 //}, 2000);
+//
+//setTimeout(function(){
+//    getExpStatus('friction', 1, function(msg, count, encodedFile){
+//        console.log('msg: ' + msg)
+//        console.log('idx: ' + count)
+//        console.log('file: ' + encodedFile)
+//    })
+//}, 5000)
+//
+//setTimeout(function(){
+//    getExpStatus('friction', 1, function(msg, count, encodedFile){
+//        console.log('msg: ' + msg)
+//        console.log('count: ' + count)
+//        //console.log('file: ' + encodedFile)
+//    })
+//}, 12000)

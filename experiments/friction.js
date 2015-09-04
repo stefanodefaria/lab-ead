@@ -1,27 +1,42 @@
 var defs = require("../definitions"),
     serialDevice = require('../serialDevice'),
-    utils = require('../utils');
+    utils = require('../utils'),
+    expRecorder = require("../expRecorder");
 
 var expName = "Cálculo do Atrito";
 var expInfo = require('fs').readFileSync('./res/friction.txt', 'utf8').toString();
 var expReportInfo = [
     {fieldName:"Qtd piscadas:", hint:"LED amarelo"},
-    {fieldName:"Tempo de uma piscada:", hint:"LED amarelo"},
+    {fieldName:"Tempo total piscando:", hint:"LED amarelo"},
     {fieldName:"Qtd piscadas:", hint:"LED vermelho"},
-    {fieldName:"Tempo de uma piscada:", hint:"LED vermelho"}
+    {fieldName:"Tempo total piscando:", hint:"LED vermelho"}
 ];
 
-var deviceID = 'usb-Arduino__www.arduino.cc__0043_85231363236351D0A131-if00',
-    cameraPath = '/dev/video0';
+const deviceID = 'usb-Arduino__www.arduino.cc__0043_85231363236351D0A131-if00',
+    startRecordingDelay = 500; //milliseconds - delay between start recording and start exp execution
 
-var device;
+var recOpts = {
+    path: '',
+    cameraPath: '/dev/video0',
+    fps: 30,
+    bitRate: 1000,
+    size: '800x480',
+    recTime: null,
+    snapshotFrequency: 3
+};
+
+var device,
+    recorder = null;
 
 initalizeDevice();
 
 /**
- * @param cb(err)
+ * @param email
+ * @param cb(err, recorder)
  */
-function execute(cb){
+function execute(email, cb){
+
+    recOpts.path = email + '_' + 'friction';
 
     var deviceStatus = getStatus();
 
@@ -41,12 +56,12 @@ function execute(cb){
                 if(err){
                     return cb(err);
                 }
-                checkAvailabilityAndStart();
+                checkAvailabilityAndStart(cb);
             });
             break;
 
         case defs.deviceStatus.UNSTARTED:
-            checkAvailabilityAndStart();
+            checkAvailabilityAndStart(cb);
             break;
 
         default:
@@ -54,33 +69,63 @@ function execute(cb){
             errorUnkownState.type = 'SerialDeviceError';
             return cb(errorUnkownState);
     }
-
-    function checkAvailabilityAndStart(){
-        device.deviceIsAvailable(function(err2, available){
-            if(err2){
-                return cb(err2);
-            }
-
-            if(!available){
-                var errorBusy = new Error(defs.returnMessage.DEVICE_BUSY);
-                errorBusy.type = 'SerialDeviceBusy';
-                return cb(errorBusy);
-            }
-
-            device.start(function(err3){
-                if(err3){
-                    return cb(err3);
-                }
-
-                return cb(null);
-            });
-        })
-    }
-
 }
 
+/**
+ * @param cb(err, recorder)
+ */
+function checkAvailabilityAndStart(cb){
+    device.deviceIsAvailable(function(err, available){
+        if(err){
+            return cb(err);
+        }
+
+        if(!available){
+            var errorBusy = new Error(defs.returnMessage.DEVICE_BUSY);
+            errorBusy.type = 'SerialDeviceBusy';
+            return cb(errorBusy);
+        }
+
+        //attaches a recorder to exp object
+        recorder = expRecorder(recOpts);
+
+        device.onEnd(function(){ //stops recording when experiment is finished
+            recorder.stopRecording();
+        });
+
+        recorder.onEnd(function(){ //clears snapshot directory when recording is finished
+            try{
+                recorder.flushSnapshots();
+            }
+            catch(err){
+                utils.catchErr(err);
+            }
+        });
+
+        recorder.startRecording(function(err2){ //starts recording before experiment started
+            if(err2){
+                utils.catchErr(err2);
+                return cb(defs.returnMessage.SERVER_ERROR);
+            }
+
+            setTimeout(function(){ //starts exp after some delay after starting recording
+
+                device.start(function(err3){
+                    if(err3){
+                        return cb(err3);
+                    }
+
+                    return cb(null, recorder);
+                });
+
+            }, startRecordingDelay);
+        });
+    });
+}
+
+
 function initalizeDevice(){
-    serialDevice.startDevice(deviceID, 5000, function(err, dev){
+    serialDevice.startDevice(deviceID, {}, function(err, dev){ //starts device using default options
         if(err){
             utils.catchErr(err);
             return;
@@ -91,6 +136,7 @@ function initalizeDevice(){
     });
 }
 
+
 function getStatus(){
     if(!device){
         return defs.deviceStatus.UNINITIALIZED;
@@ -99,17 +145,12 @@ function getStatus(){
     return device.getStatus();
 }
 
-
-/**
- * @param cb()
- */
-function onEnd(cb){
-    device.onEnd(cb);
+function getRecorder(){
+    return recorder;
 }
 
 /**
- *
- * @param cb(err, msg)
+ * @param cb(err)
  */
 function reset(cb){
     device.reset(cb);
@@ -118,11 +159,10 @@ function reset(cb){
 module.exports.expReportInfo = expReportInfo;
 module.exports.expInfo = expInfo;
 module.exports.expName = expName;
-module.exports.cameraPath = cameraPath;
+module.exports.getRecorder = getRecorder;
 module.exports.execute = execute;
 module.exports.getStatus = getStatus;
 module.exports.reset = reset;
-module.exports.onEnd = onEnd;
 
 
 /*
