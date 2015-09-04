@@ -12,12 +12,46 @@ var expReportInfo = [
     {fieldName:"Distância 4:", hint:"Em metros"}
 ];
 
-function execute(cb){
+
+var status = defs.deviceStatus.UNSTARTED;
+
+function execute(email, cb){
     console.log("EXECUTOUUUUUU GRAVIDADEEEE");
+    status = defs.deviceStatus.FINISHED;
     return cb(null, defs.returnMessage.SUCCESS);
+}
+
+//dummy
+function getRecorder(){
+    return {
+        getVideo: function(cb){
+            require('fs').readFile('./res/gravitySample.mp4', function(err, data){
+                if(err){
+                    return cb(err);
+                }
+                return cb(null, data);
+            });
+        }
+    };
+}
+
+
+function getStatus(){
+   return status;
+}
+
+/**
+ * @param cb(err, msg)
+ */
+function reset(cb){
+    status = defs.deviceStatus.UNSTARTED;
+    return cb(null);
 }
 
 module.exports.expReportInfo = expReportInfo;
 module.exports.expInfo = expInfo;
 module.exports.expName = expName;
+module.exports.getRecorder = getRecorder;
 module.exports.execute = execute;
+module.exports.getStatus = getStatus;
+module.exports.reset = reset;
