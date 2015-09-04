@@ -101,13 +101,15 @@ function getExpStatus(key, snapshotCount, cb){
     if(availability.message === defs.returnMessage.BAD_DATA || availability.message === defs.deviceStatus.UNSTARTED){ //bad exp key
         return cb(null, defs.returnMessage.BAD_DATA);
     }
-    else if(availability.message === defs.deviceStatus.FINISHED){
+            //finished executing and recording experiment
+    else if(availability.message === defs.deviceStatus.FINISHED && recorder.getStatus().finished === true){
 
         recorder.getVideo(function(err, data){
             if(!data){
                 if(err){
                     utils.catchErr(err);
                 }
+
                 return cb(defs.returnMessage.SERVER_ERROR);
             }
 
@@ -116,7 +118,8 @@ function getExpStatus(key, snapshotCount, cb){
             return cb(defs.returnMessage.SUCCESS, -1, base64EncodedData);
         });
     }
-    else if(availability.message === defs.deviceStatus.IN_PROGRESS){
+            //still executing or recording experiment
+    else if(availability.message === defs.deviceStatus.IN_PROGRESS || recorder.getStatus().finished === false){
 
         recorder.getSnapshot(snapshotCount, function(err, data){
             if(err){

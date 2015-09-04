@@ -31,6 +31,9 @@ function getRecorder(){
                 }
                 return cb(null, data);
             });
+        },
+        getStatus: function(){
+            return {finished: true, error: null};
         }
     };
 }

@@ -10,7 +10,7 @@ var defs = require('./definitions');
 var startupDelay = 500; //ms, delay to wait for possible error during startup
 
 var baseOutputPath = './camera_output',
-    videoFileName = 'output.mp4',
+    videoFileName = 'output.avi',
     snapshotDirPath = 'snapshots',
     snapshotFileName = 'out',
     snapshotFileExtension = '.jpg';
@@ -64,9 +64,7 @@ function expRecorder(opts){
             }
 
             ffmpegProcess.output(outputDirPath + '/' + videoFileName)
-                .videoCodec('libx264')
                 .size(size)
-                .outputOption('-x264opts bitrate=' + bitRate)
                 .output(outputDirPath + '/' + snapshotDirPath + '/' +snapshotFileName + '%d' + snapshotFileExtension)
                 .size(size)
                 .outputOptions([

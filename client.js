@@ -15,7 +15,7 @@ var globalExpIDsArray;
 var globalExpNamesArray;
 var globalSelectedExpID;
 
-var operations = [login, getReport];
+var operations = [login, startExp, getExpStatus];
 
 async.series(operations,  function(){
     console.log("All operations are finished.");
@@ -60,7 +60,7 @@ function login(cb){
     };
     var login_data = JSON.stringify({
         email: 'test@test.com',
-        password: '12345'
+        password: '54321'
     });
 
     console.log("Login...");
@@ -147,7 +147,7 @@ function startExp(cb){
     var startExp_data = JSON.stringify({
         email: 'test@test.com',
         token: globalToken,
-        expID: globalSelectedExpID
+        expID: 'friction'
     });
 
     console.log("Starting exp...");
@@ -189,6 +189,26 @@ function sendReport(cb){
     });
 }
 
+function getExpStatus(cb){
+    var getExpStatus_options = {
+        host: 'localhost',
+        port: 8080,
+        method: 'POST',
+        path: '/getExpStatus'
+    };
+    var getExpStatus_data = JSON.stringify({
+        email: 'test@test.com',
+        token: globalToken,
+        expID: 'friction',
+        snapshotCount: 1
+    });
+
+    console.log("Exp Status...");
+    httpRequest(getExpStatus_options, getExpStatus_data, function(msg){
+        console.log(msg);
+        cb();
+    });
+}
 
 function getReport(cb){
     var getReport_options = {
