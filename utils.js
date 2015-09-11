@@ -4,6 +4,7 @@
 
 var defs = require('./definitions');
 var fs = require('fs');
+var os = require('os');
 
 /**
  * Client address parser
@@ -62,7 +63,7 @@ function extractOperation(req){
  */
 function deleteFolderRecursive(path) {
     if( fs.existsSync(path) ) {
-        fs.readdirSync(path).forEach(function(file,index){
+        fs.readdirSync(path).forEach(function(file){
             var curPath = path + "/" + file;
             if(fs.lstatSync(curPath).isDirectory()) { // recurse
                 deleteFolderRecursive(curPath);
@@ -73,6 +74,12 @@ function deleteFolderRecursive(path) {
         fs.rmdirSync(path);
     }
 }
+
+
+function getOSType(){
+    return os.type();
+}
+
 
 /**
  * Adds function 'containsProp' to Object class
@@ -91,3 +98,4 @@ module.exports.currentTimeInSeconds = currentTimeInSeconds;
 module.exports.catchErr = catchErr;
 module.exports.extractOperation = extractOperation;
 module.exports.deleteFolderRecursive = deleteFolderRecursive;
+module.exports.getOSType = getOSType;

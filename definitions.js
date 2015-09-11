@@ -28,6 +28,13 @@ const profileType = {
     ADMIN: 'admin'      //not in use
 };
 
+const osType = {
+    WINDOWS: 'Windows_NT',
+    LINUX: 'Linux',
+    OS_X: 'Darwin'
+};
+
 module.exports.returnMessage = returnMessage;
 module.exports.profileType = profileType;
 module.exports.deviceStatus = deviceStatus;
+module.exports.osType = osType;
