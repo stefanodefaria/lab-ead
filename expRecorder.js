@@ -59,6 +59,10 @@ function expRecorder(opts){
 
             ffmpegProcess =  ffmpeg(cameraPath);
 
+            //adds input format 'dshow' for Windows
+            if(utils.getOSType() === defs.osType.WINDOWS){
+                ffmpegProcess.inputOption('-f dshow');
+            }
             if(recTimeOption){
                 ffmpegProcess.inputOption(recTimeOption);
             }

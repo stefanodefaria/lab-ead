@@ -12,12 +12,13 @@ var expReportInfo = [
     {fieldName:"Tempo total piscando:", hint:"LED vermelho"}
 ];
 
-const deviceID = 'usb-Arduino__www.arduino.cc__0043_85231363236351D0A131-if00',
+const deviceID = utils.getOSType()=== defs.osType.LINUX ?
+        'usb-Arduino__www.arduino.cc__0043_85231363236351D0A131-if00': 'USB\\VID_2341&PID_0043\\85231363236351D0A131',
     startRecordingDelay = 500; //milliseconds - delay between start recording and start exp execution
 
-var recOpts = {
+const recOpts = {
     path: '',
-    cameraPath: '/dev/video0',
+    cameraPath: utils.getOSType()=== defs.osType.LINUX ? '/dev/video0' : 'video=Integrated Webcam',
     fps: 30,
     bitRate: 1000,
     size: '800x480',
@@ -171,9 +172,9 @@ module.exports.reset = reset;
 
 //setTimeout(function () {
 //    console.log('before executing: ', getStatus());
-//    execute(function(err, msg){
+//    execute("test@test.com", function(err, msg){
 //        console.log('execution: ', msg);
-//        execute(console.log);
+//        execute("test@test.com", console.log);
 //        setTimeout(function(){console.log('during execution: ', getStatus())}, 5000);
 //        setTimeout(function(){
 //            console.log('after execution: ', getStatus());
@@ -182,7 +183,7 @@ module.exports.reset = reset;
 //                console.log('reset: ', msg);
 //                console.log('after reset> ', getStatus());
 //
-//                execute(function(err, msg){
+//                execute("test@test.com", function(err, msg){
 //                    console.log('execution: ', msg);
 //                    setTimeout(function(){console.log('during execution: ', getStatus())}, 5000);
 //
