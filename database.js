@@ -149,7 +149,7 @@ function getReport(email,cb){
         }
 
         for(var i=0; i<rows.length; i++){
-            reports.push( {expID: rows[i].EXP_ID, report: rows[i].REPORT , timestamp:rows[i].TIMESTAMP});
+            reports.push( {expID: rows[i].EXP_ID, report: JSON.parse(rows[i].REPORT) , timestamp:rows[i].TIMESTAMP});
         }
 
         cb(null, reports);

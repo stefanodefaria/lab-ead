@@ -62,7 +62,7 @@ function execute(clientInfo, cb){
                 }(i));
             }
 
-            exitedVideoReads = 0;
+            var exitedVideoReads = 0;
 
             function exit(i, encodedVideo){
                 exitedVideoReads++;
@@ -71,8 +71,6 @@ function execute(clientInfo, cb){
                     retObj.reports[i].encodedVideo = encodedVideo.toString('base64');
                 }
                 if(exitedVideoReads === retObj.reports.length){
-
-                    console.log(retObj)
                     return cb(retObj);
                 }
             }
