@@ -15,7 +15,7 @@ var globalExpIDsArray;
 var globalExpNamesArray;
 var globalSelectedExpID;
 
-var operations = [login, startExp, getExpStatus];
+var operations = [login, getReport];
 
 async.series(operations,  function(){
     console.log("All operations are finished.");
@@ -222,7 +222,7 @@ function getReport(cb){
         token: globalToken
     });
 
-    console.log("Starting exp...");
+    console.log("Getting reports exp...");
     httpRequest(getReport_options, getReport_data, function(msg){
         console.log(msg);
         cb();

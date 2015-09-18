@@ -182,6 +182,8 @@ function expRecorder(opts){
 }
 
 module.exports = expRecorder;
+module.exports.baseOutputPath = baseOutputPath;
+module.exports.videoFileName = videoFileName;
 
 /**
  * SOMENTE PARA TESTES
