@@ -3,6 +3,7 @@ var http = require("http");
 var defs = require('./definitions');
 var utils = require('./utils');
 var ops = require('./operationManager');
+var zlib = require('zlib')
 
 var port = 8080;
 
@@ -33,8 +34,8 @@ http.createServer(function (req, res) {
             console.log("Invalid request from %s: %s.", utils.clientAddress(req), validation.message);
 
             var retObj = {message: validation.message};
-            res.end(JSON.stringify(retObj));
-            return;
+
+            return sendResponse(res, retObj);
         }
 
 
@@ -44,13 +45,22 @@ http.createServer(function (req, res) {
         //redirects to operation based on url path
         var op = utils.extractOperation(req);
         ops.processRequest(op, clientInfo, function (retObj) {
-            res.end(JSON.stringify(retObj));
+            return sendResponse(res, retObj);
         });
 
     });
 
 }).listen(port);
 
+
+function sendResponse(res, retObj){
+
+    var buf = new Buffer(JSON.stringify(retObj), 'utf-8');
+    zlib.gzip(buf, function (_, result) {  // Compress result before sendig
+
+        return res.end(result);
+    });
+}
 
 /**
  * Validates client request

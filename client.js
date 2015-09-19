@@ -8,6 +8,7 @@
 
 var http = require('http');
 var async = require('async');
+var zlib = require('zlib');
 
 
 var globalToken;
@@ -28,15 +29,18 @@ async.series(operations,  function(){
 function httpRequest(req_options, req_data, callback){
     var req = http.request(req_options, function(res) {
 
+        var gunzip = zlib.createGunzip();
         var message = '';
 
-        res.on("data", function(chunk) {
+        gunzip.on("data", function(chunk) {
             message+=chunk.toString();
         });
 
-        res.on('end', function(){
+        gunzip.on('end', function(){
             callback(JSON.parse(message));
         });
+
+        res.pipe(gunzip)
     });
 
     req.on('error', function(e) {
