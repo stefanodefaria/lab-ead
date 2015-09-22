@@ -12,10 +12,50 @@ var expReportInfo = [
     {fieldName:"Distância 4:", hint:"Em metros"}
 ];
 
+var expRecorder = require("../expRecorder");
+var recorder;
+const recOpts = {
+    path: '',
+    cameraPath: './res/gravitySample.mp4',
+    fps: 30,
+    bitRate: 1000,
+    size: '281x500',
+    recTime: null,
+    snapshotFrequency: 3
+};
 
 var status = defs.deviceStatus.UNSTARTED;
 
 function execute(email, cb){
+
+    if(status === defs.deviceStatus.IN_PROGRESS || status === defs.deviceStatus.UNKNOWN || status === defs.deviceStatus.UNINITIALIZED){
+        return cb(new Error("Device not available: " + status));
+    }
+
+    status = defs.deviceStatus.IN_PROGRESS;
+
+    recOpts.path = email + '_' + 'gravity';
+    recorder = expRecorder(recOpts);
+
+    recorder.onEnd(function(){ //clears snapshot directory when recording is finished
+        try{
+            recorder.flushSnapshots();
+        }
+        catch(err){
+            utils.catchErr(err);
+        }
+        status = defs.deviceStatus.FINISHED;
+    });
+
+    recorder.startRecording(function(err){ //starts recording before experiment started
+        if(err){
+            utils.catchErr(err2);
+            return cb(defs.returnMessage.SERVER_ERROR);
+        }
+
+        return cb();
+    });
+
     console.log("EXECUTOUUUUUU GRAVIDADEEEE");
     status = defs.deviceStatus.FINISHED;
     return cb(null, defs.returnMessage.SUCCESS);
@@ -23,19 +63,7 @@ function execute(email, cb){
 
 //dummy
 function getRecorder(){
-    return {
-        getVideo: function(cb){
-            require('fs').readFile('./res/gravitySample.mp4', function(err, data){
-                if(err){
-                    return cb(err);
-                }
-                return cb(null, data);
-            });
-        },
-        getStatus: function(){
-            return {finished: true, error: null};
-        }
-    };
+    return recorder;
 }
 
 
@@ -48,7 +76,7 @@ function getStatus(){
  */
 function reset(cb){
     status = defs.deviceStatus.UNSTARTED;
-    return cb(null);
+    return cb();
 }
 
 module.exports.expReportInfo = expReportInfo;

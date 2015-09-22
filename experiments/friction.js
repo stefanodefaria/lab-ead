@@ -116,7 +116,7 @@ function checkAvailabilityAndStart(cb){
                         return cb(err3);
                     }
 
-                    return cb(null, recorder);
+                    return cb();
                 });
 
             }, startRecordingDelay);
