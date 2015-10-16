@@ -21,7 +21,7 @@ function execute(clientInfo, cb) {
 
 
     console.log('Client %s <%s> attempted to perform getExpStatus...', clientInfo.address, clientInfo.email);
-    exp.getExpStatus(clientInfo.expID, clientInfo.snapshotCount, function(msg, count, encodedFile){
+    exp.getExpStatus(clientInfo.email, clientInfo.expID, clientInfo.snapshotCount, function(msg, count, encodedFile){
 
         retObj.message = msg;
         retObj.snapshotCount = count;

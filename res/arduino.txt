@@ -1,0 +1,2 @@
+Esse experimento tem como objetivo demonstrat a comunicação do servidor com um dispositivo externo.
+Ao iniciar o experimento, o usuário visualizará em tempo real a execução da rotina do Arduino, que piscará um LED externo (vermelho) e um LED embutido (amarelo).

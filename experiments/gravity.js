@@ -1,5 +1,5 @@
 var defs = require("../definitions");
-var expName = "Verificação da aceleração da gravidade";
+var expName = "Aceleração da gravidade";
 var expInfo = require('fs').readFileSync('./res/gravity.txt', 'utf8').toString();
 var expReportInfo = [
     {fieldName:"Tempo 1:", hint:"Em segundos"},
@@ -21,7 +21,7 @@ const recOpts = {
     bitRate: 1000,
     size: '281x500',
     recTime: null,
-    snapshotFrequency: 3
+    snapshotFrequency: 5
 };
 
 var status = defs.deviceStatus.UNSTARTED;
@@ -38,13 +38,13 @@ function execute(email, cb){
     recorder = expRecorder(recOpts);
 
     recorder.onEnd(function(){ //clears snapshot directory when recording is finished
-        try{
+
+        setTimeout(function(){ //adds delay to experiment
+            console.log("EXECUTOUUUUUU GRAVIDADEEEE");
+
             recorder.flushSnapshots();
-        }
-        catch(err){
-            utils.catchErr(err);
-        }
-        status = defs.deviceStatus.FINISHED;
+            status = defs.deviceStatus.FINISHED;
+        },4000);
     });
 
     recorder.startRecording(function(err){ //starts recording before experiment started
@@ -56,8 +56,6 @@ function execute(email, cb){
         return cb();
     });
 
-    console.log("EXECUTOUUUUUU GRAVIDADEEEE");
-    status = defs.deviceStatus.FINISHED;
     return cb(null, defs.returnMessage.SUCCESS);
 }
 

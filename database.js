@@ -32,6 +32,7 @@ function initialize(cb){
             "REPORT text," +
             "TIMESTAMP datetime," +
             "primary key (EMAIL, EXP_ID)" +
+            "foreign key (EMAIL) references PROFILES(EMAIL)" +
             ")";
 
         db.run(queryProfiles, function(err){

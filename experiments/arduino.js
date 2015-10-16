@@ -3,8 +3,8 @@ var defs = require("../definitions"),
     utils = require('../utils'),
     expRecorder = require("../expRecorder");
 
-var expName = "Cálculo do Atrito";
-var expInfo = require('fs').readFileSync('./res/friction.txt', 'utf8').toString();
+var expName = "LEDs Arduino";
+var expInfo = require('fs').readFileSync('./res/arduino.txt', 'utf8').toString();
 var expReportInfo = [
     {fieldName:"Qtd piscadas:", hint:"LED amarelo"},
     {fieldName:"Tempo total piscando:", hint:"LED amarelo"},
@@ -13,7 +13,7 @@ var expReportInfo = [
 ];
 
 const deviceID = utils.getOSType()=== defs.osType.LINUX ?
-        'usb-Arduino__www.arduino.cc__0043_85231363236351D0A131-if00': 'USB\\VID_2341&PID_0043\\85231363236351D0A131',
+        'usb-Arduino__www.arduino.cc__0043_952333532313512101D1-if00': 'USB\\VID_2341&PID_0043\\85231363236351D0A131',
     startRecordingDelay = 500; //milliseconds - delay between start recording and start exp execution
 
 const recOpts = {
@@ -23,7 +23,7 @@ const recOpts = {
     bitRate: 1000,
     size: '800x480',
     recTime: null,
-    snapshotFrequency: 3
+    snapshotFrequency: 5
 };
 
 var device,

@@ -62,17 +62,57 @@ function extractOperation(req){
  * @param path - folder path
  */
 function deleteFolderRecursive(path) {
-    if( fs.existsSync(path) ) {
-        fs.readdirSync(path).forEach(function(file){
+
+    if (fs.existsSync(path)) {
+        fs.readdirSync(path).forEach(function (file) {
             var curPath = path + "/" + file;
-            if(fs.lstatSync(curPath).isDirectory()) { // recurse
+            if (fs.lstatSync(curPath).isDirectory()) { // recurse
                 deleteFolderRecursive(curPath);
             } else { // delete file
-                fs.unlinkSync(curPath);
+
+                var deleted = false,
+                    tries = 0,
+                    err = null;
+
+                while(!deleted && tries < 10){
+                    try {
+                        tries ++;
+                        fs.unlinkSync(curPath);
+                        deleted = true;
+                    }
+                    catch(e){
+                        err = e;
+                    }
+                }
+
+                if(!deleted){
+                    catchErr(err);
+                }
             }
         });
-        fs.rmdirSync(path);
+
+        var removed = false,
+            tries = 0,
+            err = null;
+
+        while(!removed && tries < 10){
+            try {
+                tries ++;
+                fs.rmdirSync(path);
+                removed = true;
+            }
+            catch(e){
+                err = e;
+            }
+        }
+
+        if(!removed){
+            catchErr(err);
+        }
+
     }
+
+
 }
 
 

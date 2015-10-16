@@ -16,7 +16,12 @@ var baseOutputPath = './camera_output',
     snapshotFileExtension = '.jpg';
 
 if(!fs.existsSync(baseOutputPath)){
-    fs.mkdir(baseOutputPath);
+    try{
+        fs.mkdirSync(baseOutputPath);
+    }
+    catch(err){
+        utils.catchErr(err);
+    }
 }
 
 
@@ -42,6 +47,7 @@ function expRecorder(opts){
         snapshotFrequency = opts.snapshotFrequency || 3; //hertz;
 
     var outputDirPath = baseOutputPath + '/' + path;
+    var lastSnapshotReadTime = 0;
 
     var error = null,
         started = false,
@@ -50,9 +56,14 @@ function expRecorder(opts){
     var ffmpegProcess;
     var onEndCallback;
 
-    utils.deleteFolderRecursive(outputDirPath);
-    fs.mkdir(outputDirPath);
-    fs.mkdir(outputDirPath + '/' + snapshotDirPath);
+    try{
+        utils.deleteFolderRecursive(outputDirPath);
+        fs.mkdirSync(outputDirPath);
+        fs.mkdirSync(outputDirPath + '/' + snapshotDirPath);
+    }
+    catch(err){
+        utils.catchErr(err);
+    }
 
     return {
         startRecording: function(callback){
@@ -153,6 +164,34 @@ function expRecorder(opts){
 
         },
         /**
+         * @param count (snapshot index, starting from 1)
+         * @param cb(err, data)
+         *          if 'err' and 'data' are undefined, means file is not ready yet
+         */
+        getNextSnapshot: function(count, cb){
+            var snapshotPath = outputDirPath + '/' + snapshotDirPath + '/' + snapshotFileName + count + snapshotFileExtension;
+
+            if(!started || error  || (lastSnapshotReadTime  + (1/snapshotFrequency) * 1000) > Date.now()){
+                return cb();
+            }
+
+            fs.exists(snapshotPath, function(exists){
+                console.log('aa');
+                if(!exists){
+                    return cb();
+                }
+                console.log('bb');
+                fs.readFile(snapshotPath, function(err, data){
+                    if(err){
+                        return cb(err);
+                    }
+                    lastSnapshotReadTime = Date.now();
+                    return cb(null, data);
+                });
+            })
+
+        },
+        /**
          * @param cb(err, data)
          *          if 'err' and 'data' are undefined, means file is not ready yet
          */
@@ -171,6 +210,7 @@ function expRecorder(opts){
                     if(err){
                         return cb(err);
                     }
+                    lastSnapshotReadTime = Date.now();
                     return cb(null, data);
                 });
             })

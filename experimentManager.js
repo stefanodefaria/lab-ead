@@ -6,7 +6,7 @@ var utils = require("./utils");
 
 const expIndex = [
     "gravity",
-    "friction"
+    "arduino"
 ];
 
 var experiments = [];
@@ -67,16 +67,19 @@ function startExperiment(email, key, cb) {
             }
 
             exp.execute(email, executionCallback);
+            exp.user = email; //sets exp user
         })
     }
     else if(availability.message === defs.deviceStatus.UNSTARTED){ //starts exp
         exp.execute(email, executionCallback);
+        exp.user = email; //sets exp user
     }
 
 
     function executionCallback(err){
         if(err){
             utils.catchErr(err);
+            exp.user = null; //resets exp user
             return cb(defs.returnMessage.SERVER_ERROR);
         }
 
@@ -92,11 +95,15 @@ function startExperiment(email, key, cb) {
  *                 snapshotCount>0 and base64File null:     display previous downloaded image and query again
  *                 snapshotCount=-1:                        display video and query again
  */
-function getExpStatus(key, snapshotCount, cb){
+function getExpStatus(email, key, snapshotCount, cb){
 
     var availability = expAvailability(key),
         exp = experiments[key],
         recorder = exp.getRecorder();
+
+    if(!experiments[key] || experiments[key].user != email){
+        return cb(null, defs.returnMessage.BAD_DATA);
+    }
 
     if(availability.message === defs.returnMessage.BAD_DATA || availability.message === defs.deviceStatus.UNSTARTED){ //bad exp key
         return cb(null, defs.returnMessage.BAD_DATA);
@@ -110,6 +117,7 @@ function getExpStatus(key, snapshotCount, cb){
                     utils.catchErr(err);
                 }
 
+                exp.user = null; //resets exp user
                 return cb(defs.returnMessage.SERVER_ERROR);
             }
 
@@ -121,7 +129,7 @@ function getExpStatus(key, snapshotCount, cb){
             //still executing or recording experiment
     else if(availability.message === defs.deviceStatus.IN_PROGRESS || recorder.getStatus().finished === false){
 
-        recorder.getSnapshot(snapshotCount, function(err, data){
+        recorder.getNextSnapshot(snapshotCount, function(err, data){
             if(err){
                 utils.catchErr(err);
                 return cb(defs.returnMessage.SERVER_ERROR);
