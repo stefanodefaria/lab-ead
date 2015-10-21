@@ -3,7 +3,8 @@ var http = require("http");
 var defs = require('./definitions');
 var utils = require('./utils');
 var ops = require('./operationManager');
-var zlib = require('zlib')
+var zlib = require('zlib');
+//var logger = require('./testLogger').createLog('compression');
 
 var port = 8080;
 
@@ -57,7 +58,7 @@ function sendResponse(res, retObj){
 
     var buf = new Buffer(JSON.stringify(retObj), 'utf-8');
     zlib.gzip(buf, function (_, result) {  // Compress result before sendig
-
+        logger.log(buf.length + ',' + result.length + '\n' );
         return res.end(result);
     });
 }

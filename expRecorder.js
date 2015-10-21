@@ -176,11 +176,9 @@ function expRecorder(opts){
             }
 
             fs.exists(snapshotPath, function(exists){
-                console.log('aa');
                 if(!exists){
                     return cb();
                 }
-                console.log('bb');
                 fs.readFile(snapshotPath, function(err, data){
                     if(err){
                         return cb(err);
