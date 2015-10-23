@@ -119,6 +119,10 @@ function deviceObj(serialPort) {
         return curCallback(null, msg);
     });
 
+    serialPort.on('error', function(err){
+       utils.catchErr(err);
+    });
+
     function writeToDevice(msgByte, cb){
         curCallback = cb;
         serialPort.write(msgByte, function(err, msg){

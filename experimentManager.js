@@ -110,7 +110,7 @@ function getExpStatus(email, key, snapshotCount, cb){
     }
             //finished executing and recording experiment
     else if(availability.message === defs.deviceStatus.FINISHED && recorder.getStatus().finished === true){
-
+        recorder.flushSnapshots();
         recorder.getVideo(function(err, data){
             if(!data){
                 if(err){

@@ -24,6 +24,10 @@ http.createServer(function (req, res) {
         }
     });
 
+    req.on('error', function(err){
+        utils.catchErr(err);
+    });
+
     req.on('end', function() {
 
         //this call will either return a 'returnMessage' or a Object that hold client info
@@ -58,7 +62,7 @@ function sendResponse(res, retObj){
 
     var buf = new Buffer(JSON.stringify(retObj), 'utf-8');
     zlib.gzip(buf, function (_, result) {  // Compress result before sendig
-        logger.log(buf.length + ',' + result.length + '\n' );
+        //logger.log(buf.length + ',' + result.length + '\n' );
         return res.end(result);
     });
 }

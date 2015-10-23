@@ -41,8 +41,6 @@ function execute(email, cb){
 
         setTimeout(function(){ //adds delay to experiment
             console.log("EXECUTOUUUUUU GRAVIDADEEEE");
-
-            recorder.flushSnapshots();
             status = defs.deviceStatus.FINISHED;
         },4000);
     });

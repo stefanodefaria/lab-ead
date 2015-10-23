@@ -37,7 +37,7 @@ initalizeDevice();
  */
 function execute(email, cb){
 
-    recOpts.path = email + '_' + 'friction';
+    recOpts.path = email + '_' + 'arduino';
 
     var deviceStatus = getStatus();
 
@@ -92,15 +92,6 @@ function checkAvailabilityAndStart(cb){
 
         device.onEnd(function(){ //stops recording when experiment is finished
             recorder.stopRecording();
-        });
-
-        recorder.onEnd(function(){ //clears snapshot directory when recording is finished
-            try{
-                recorder.flushSnapshots();
-            }
-            catch(err){
-                utils.catchErr(err);
-            }
         });
 
         recorder.startRecording(function(err2){ //starts recording before experiment started
