@@ -105,12 +105,14 @@ function getExpStatus(email, key, snapshotCount, cb){
         return cb(null, defs.returnMessage.BAD_DATA);
     }
 
-    if(availability.message === defs.returnMessage.BAD_DATA || availability.message === defs.deviceStatus.UNSTARTED){ //bad exp key
+    if(availability.message === defs.returnMessage.BAD_DATA || availability.message === defs.deviceStatus.UNKNOWN){ //bad exp key
         return cb(null, defs.returnMessage.BAD_DATA);
     }
             //finished executing and recording experiment
     else if(availability.message === defs.deviceStatus.FINISHED && recorder.getStatus().finished === true){
-        recorder.flushSnapshots();
+        process.nextTick(function(){
+            recorder.flushSnapshots();
+        });
         recorder.getVideo(function(err, data){
             if(!data){
                 if(err){

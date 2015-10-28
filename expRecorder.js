@@ -47,10 +47,11 @@ function expRecorder(opts){
         snapshotFrequency = opts.snapshotFrequency || 3; //hertz;
 
     var outputDirPath = baseOutputPath + '/' + path;
-    var lastSnapshotReadTime = 0;
+    var firstSnapshotReadTime = Date.now();
 
     var error = null,
         started = false,
+        stoping = false,
         finished = false;
 
     var ffmpegProcess;
@@ -80,6 +81,7 @@ function expRecorder(opts){
 
             ffmpegProcess.output(outputDirPath + '/' + videoFileName)
                 .size(size)
+                .videoBitrate(bitRate)
                 .output(outputDirPath + '/' + snapshotDirPath + '/' +snapshotFileName + '%d' + snapshotFileExtension)
                 .size(size)
                 .outputOptions([
@@ -126,7 +128,9 @@ function expRecorder(opts){
         },
         stopRecording: function(){
             ffmpegProcess.on('progress', function(progress){
+                if(stoping){ return; } //prevents calling stdin.write('q') more than once
                 console.log("Stopping recording with " + cameraPath + " at " + progress.timemark);
+                stoping = true;
                 ffmpegProcess.ffmpegProc.stdin.write('q');
                 //ffmpegProcess..kill('SIGTERM'); //sends termination signal
             })
@@ -171,7 +175,7 @@ function expRecorder(opts){
         getNextSnapshot: function(count, cb){
             var snapshotPath = outputDirPath + '/' + snapshotDirPath + '/' + snapshotFileName + count + snapshotFileExtension;
 
-            if(!started || error  || (lastSnapshotReadTime  + (1/snapshotFrequency) * 1000) > Date.now()){
+            if(!started || error  || (firstSnapshotReadTime  + (1/snapshotFrequency) * 1000 * count) > Date.now()){
                 return cb();
             }
 
@@ -183,7 +187,6 @@ function expRecorder(opts){
                     if(err){
                         return cb(err);
                     }
-                    lastSnapshotReadTime = Date.now();
                     return cb(null, data);
                 });
             })
@@ -208,7 +211,7 @@ function expRecorder(opts){
                     if(err){
                         return cb(err);
                     }
-                    lastSnapshotReadTime = Date.now();
+                    firstSnapshotReadTime = Date.now();
                     return cb(null, data);
                 });
             })
