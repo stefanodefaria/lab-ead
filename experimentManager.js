@@ -38,6 +38,15 @@ function expAvailability(key){
         if(availability.message === defs.deviceStatus.UNSTARTED || availability.message === defs.deviceStatus.FINISHED){
             availability.available = true;
         }
+
+        var recorder = experiments[key].getRecorder();
+        if(recorder){
+
+            availability.available = availability.available && recorder.getStatus().finished;
+            if(!recorder.getStatus().finished){
+                availability.message = defs.deviceStatus.IN_PROGRESS;
+            }
+        }
     }
 
     return availability;
